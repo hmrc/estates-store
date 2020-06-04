@@ -1,7 +1,12 @@
 
 # estates-store
 
-This is a placeholder README.md for a new repository
+This microservice is responsible for:
+
+- holding the status of each task in the task list for registration
+- holding the status of each task in the task list for maintenance
+
+- locked out from Trust IV following 3 failures
 
 ### License
 
