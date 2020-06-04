@@ -27,7 +27,7 @@ lazy val microservice = Project(appName, file("."))
     dependencyOverrides              ++= AppDependencies.overrides,
   )
   .settings(
-    PlayKeys.playDefaultPort := 9799
+    PlayKeys.playDefaultPort := 8835
   )
   .settings(
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
