@@ -18,6 +18,7 @@ package uk.gov.hmrc.estatesstore.services
 
 import javax.inject.Inject
 import uk.gov.hmrc.estatesstore.config.annotations.Register
+import uk.gov.hmrc.estatesstore.models.register.Operations.{UpdateDeceased, UpdateDetails, UpdateOperation, UpdatePersonalRepresentative, UpdateTaxLiability}
 import uk.gov.hmrc.estatesstore.models.register.{TaskCache, Tasks}
 import uk.gov.hmrc.estatesstore.repositories.TasksRepository
 
@@ -41,6 +42,17 @@ class RegisterTasksService @Inject()(@Register tasksRepository: TasksRepository)
   def set(internalId: String, updated: Tasks) : Future[Tasks] = {
     val cache = TaskCache(internalId, updated)
     tasksRepository.set[TaskCache](internalId, cache).map(_ => updated)
+  }
+
+  def updateTask(update: UpdateOperation, tasks: Tasks) = {
+    Future.successful {
+      update match {
+        case UpdateDetails => tasks.copy(details = true)
+        case UpdatePersonalRepresentative => tasks.copy(personalRepresentative = true)
+        case UpdateDeceased => tasks.copy(deceased = true)
+        case UpdateTaxLiability => tasks.copy(yearsOfTaxLiability = true)
+      }
+    }
   }
 
 }
