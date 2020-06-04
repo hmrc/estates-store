@@ -7,8 +7,8 @@ val appName = "estates-store"
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
-    ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;app.Routes.*;prod.*;testOnlyDoNotUseInProd.*;testOnlyDoNotUseInAppConf.*;" +
-      "uk.gov.hmrc.BuildInfo;app.*;prod.*;config.*;.*AppConfig",
+    ScoverageKeys.coverageExcludedPackages := "<empty>;.*Reverse.*;app.Routes.*;prod.*;testOnlyDoNotUseInProd.*;testOnlyDoNotUseInAppConf.*;" +
+      "uk.gov.hmrc.BuildInfo;app.*;prod.*;config.*;.*AppConfig;",
     ScoverageKeys.coverageMinimum := 70,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
