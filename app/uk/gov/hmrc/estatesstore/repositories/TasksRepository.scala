@@ -58,9 +58,7 @@ abstract class TasksRepository(mongo: ReactiveMongoApi, config: Configuration)
 
     val modifier = Json.obj(
       "$set" -> Json.obj(
-        "lastUpdated" -> Json.obj(
-          "$date" -> Json.toJson(LocalDateTime.now())(MongoDateTimeFormats.localDateTimeWrite)
-        )
+        "lastUpdated" -> Json.toJson(LocalDateTime.now())(MongoDateTimeFormats.localDateTimeWrite)
       )
     )
 
