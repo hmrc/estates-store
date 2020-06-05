@@ -39,14 +39,26 @@ class RegisterTasksService @Inject()(@Register tasksRepository: TasksRepository)
     }
   }
 
-  def set(internalId: String, updated: Tasks) : Future[Tasks] = {
-    val cache = TaskCache(internalId, updated)
-    tasksRepository.set[TaskCache](internalId, cache).map(_ => updated)
+  def set(internalId: String, tasks: Tasks) : Future[Tasks] = {
+    val cache = TaskCache(internalId, tasks)
+    save(internalId, cache)
   }
 
-  def updateTask(update: UpdateOperation, tasks: Tasks) = {
+  def set(internalId: String, operation: UpdateOperation, tasks: Tasks) : Future[Tasks] = {
+    updateTask(operation, tasks) flatMap {
+      updated =>
+        val cache = TaskCache(internalId, updated)
+        save(internalId, cache)
+    }
+  }
+
+  private def save(internalId: String, cache: TaskCache) = {
+    tasksRepository.set[TaskCache](internalId, cache).map(_ => cache.tasks)
+  }
+
+  private def updateTask(operation: UpdateOperation, tasks: Tasks) = {
     Future.successful {
-      update match {
+      operation match {
         case UpdateDetails => tasks.copy(details = true)
         case UpdatePersonalRepresentative => tasks.copy(personalRepresentative = true)
         case UpdateDeceased => tasks.copy(deceased = true)

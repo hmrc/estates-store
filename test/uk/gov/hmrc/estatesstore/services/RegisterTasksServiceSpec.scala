@@ -40,8 +40,8 @@ class RegisterTasksServiceSpec extends FreeSpec with SpecBase with GuiceOneAppPe
 
   lazy val application: Application = applicationBuilder()
     .overrides(
-    bind(classOf[TasksRepository]).qualifiedWith(classOf[Register]).toInstance(repository)
-  ).build()
+      bind(classOf[TasksRepository]).qualifiedWith(classOf[Register]).toInstance(repository)
+    ).build()
 
   private val service = application.injector.instanceOf[RegisterTasksService]
 

@@ -16,9 +16,30 @@
 
 package uk.gov.hmrc.estatesstore
 
+import org.scalatest.TestSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.http.MimeTypes
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{BodyParsers, PlayBodyParsers}
+import play.api.test.FakeRequest
+import play.api.test.Helpers.CONTENT_TYPE
+import uk.gov.hmrc.estatesstore.config.AppConfig
+import uk.gov.hmrc.estatesstore.controllers.actions.{FakeIdentifierAction, IdentifierAction}
 
-trait SpecBase {
+trait SpecBase extends GuiceOneAppPerSuite {
+  this: TestSuite =>
+
+  def fakeRequest: FakeRequest[JsValue] = FakeRequest("POST", "")
+    .withHeaders(CONTENT_TYPE -> MimeTypes.JSON)
+    .withBody(Json.parse("{}"))
+
+  def injectedParsers: PlayBodyParsers = app.injector.instanceOf[PlayBodyParsers]
+
+  def appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+  def bodyParsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
 
   protected def applicationBuilder(): GuiceApplicationBuilder = {
     new GuiceApplicationBuilder()
@@ -27,6 +48,9 @@ trait SpecBase {
           "metrics.enabled" -> false,
           "auditing.enabled" -> false
         ): _*
+      )
+      .overrides(
+        bind[IdentifierAction].toInstance(new FakeIdentifierAction(injectedParsers))
       )
   }
 

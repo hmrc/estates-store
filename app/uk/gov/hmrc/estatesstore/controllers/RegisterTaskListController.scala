@@ -34,13 +34,12 @@ class RegisterTaskListController @Inject()(
 
 	private def updateTask(internalId: String, operation: UpdateOperation) = for {
 		tasks <- service.get(internalId)
-		updatedTasks <- service.updateTask(operation, tasks)
-		savedTasks <- service.set(internalId, updatedTasks)
+		savedTasks <- service.set(internalId, operation, tasks)
 	} yield {
 		Ok(Json.toJson(savedTasks))
 	}
 
-	def get(utr: String): Action[AnyContent] = authAction.async {
+	def get: Action[AnyContent] = authAction.async {
 		request =>
 
 			service.get(request.internalId).map {
@@ -49,7 +48,7 @@ class RegisterTaskListController @Inject()(
 			}
 	}
 
-	def set(utr: String): Action[JsValue] = authAction.async(parse.json) {
+	def set: Action[JsValue] = authAction.async(parse.json) {
 		request =>
 			request.body.validate[Tasks] match {
 				case JsSuccess(tasks, _) =>
