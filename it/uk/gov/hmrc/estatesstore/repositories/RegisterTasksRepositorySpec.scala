@@ -21,9 +21,32 @@ class RegisterTasksRepositorySpec extends FreeSpec with MustMatchers
         getConnection(application).map{ connection =>
           dropTheDatabase(connection)
 
-          val repository = application.injector.instanceOf[MaintainTasksRepository]
+          val repository = application.injector.instanceOf[RegisterTasksRepository]
 
           repository.get[TaskCache](internalId).futureValue mustBe None
+        }
+      }
+    }
+
+    "must return TaskCache when one exists" in {
+      running(application) {
+
+          getConnection(application).map { connection =>
+            dropTheDatabase(connection)
+
+            val repository = application.injector.instanceOf[RegisterTasksRepository]
+
+            val task = Tasks(details = false, personalRepresentative = false, deceased = false, yearsOfTaxLiability = false)
+
+            val cache = TaskCache(internalId, task)
+
+            val initial = repository.set(internalId, cache).futureValue
+
+            initial mustBe true
+
+            repository.get[TaskCache](internalId).futureValue.value.tasks mustBe task
+
+            dropTheDatabase(connection)
         }
       }
     }
@@ -34,17 +57,25 @@ class RegisterTasksRepositorySpec extends FreeSpec with MustMatchers
         getConnection(application).map { connection =>
           dropTheDatabase(connection)
 
-          val repository = application.injector.instanceOf[MaintainTasksRepository]
+          val repository = application.injector.instanceOf[RegisterTasksRepository]
 
           val task = Tasks(details = true, personalRepresentative = false, deceased = false, yearsOfTaxLiability = false)
 
-          val cache = TaskCache(internalId, task)
+          val initial = TaskCache(internalId, task)
 
-          val result = repository.set(internalId, cache).futureValue
+          repository.set(internalId, initial).futureValue
 
-          result mustBe true
+          repository.get[TaskCache](internalId).futureValue.value.tasks mustBe initial
 
-          repository.get[TaskCache](internalId).futureValue.value.tasks mustBe task
+          // update
+
+          val updatedTask = Tasks(details = true, personalRepresentative = true, deceased = false, yearsOfTaxLiability = false)
+
+          val updatedCache = TaskCache(internalId, updatedTask)
+
+          repository.set(internalId, updatedCache).futureValue
+
+          repository.get[TaskCache](internalId).futureValue.value.tasks mustBe updatedTask
 
           dropTheDatabase(connection)
         }
