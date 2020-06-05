@@ -62,7 +62,7 @@ abstract class TasksRepository(mongo: MongoDriver, config: Configuration)
     )
 
     collection.flatMap(
-        _.findAndUpdate(selector, modifier, fetchNewObject = false)
+        _.findAndUpdate(selector, modifier, fetchNewObject = true)
         .map(_.result[T])
       )
   }
