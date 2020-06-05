@@ -1,3 +1,9 @@
 # microservice specific routes
 
-GET        /hello-world             uk.gov.hmrc.estatesstore.controllers.MicroserviceHelloWorldController.hello
+GET     /register/tasks                                uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.get()
+
+POST    /register/tasks                                uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setDefaultState()
+POST    /register/tasks/estate-details                 uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setDetailsComplete()
+POST    /register/tasks/personal-representative        uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setPersonalRepresentativeComplete()
+POST    /register/tasks/deceased                       uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setDeceasedComplete()
+POST    /register/tasks/tax-liability                  uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setTaxLiabilityComplete()
