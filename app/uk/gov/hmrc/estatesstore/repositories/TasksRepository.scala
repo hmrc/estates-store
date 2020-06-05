@@ -20,7 +20,6 @@ import java.time.LocalDateTime
 
 import play.api.Configuration
 import play.api.libs.json.{Json, Reads, Writes}
-import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
@@ -29,13 +28,10 @@ import uk.gov.hmrc.estatesstore.formats.MongoDateTimeFormats
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class TasksRepository(mongo: ReactiveMongoApi, config: Configuration)
+abstract class TasksRepository(mongo: MongoDriver, config: Configuration)
                                (implicit ec: ExecutionContext) {
 
   val collectionName: String
-
-  private def collection: Future[JSONCollection] =
-    mongo.database.map(_.collection[JSONCollection](collectionName))
 
   private val expireAfterSeconds = config.get[Int]("mongodb.expireAfterSeconds")
 
@@ -45,13 +41,16 @@ abstract class TasksRepository(mongo: ReactiveMongoApi, config: Configuration)
     options = BSONDocument("expireAfterSeconds" -> expireAfterSeconds)
   )
 
-  val started: Future[Unit] =
-    collection.flatMap {
-      coll =>
-        for {
-          _ <- coll.indexesManager.ensure(lastUpdatedIndex)
-        } yield ()
-    }
+  private def collection: Future[JSONCollection] =
+    for {
+      _   <- ensureIndexes
+      res <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
+    } yield res
+
+  private lazy val ensureIndexes = for {
+      collection              <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
+      lastUpdateIndexCreated  <- collection.indexesManager.ensure(lastUpdatedIndex)
+  } yield lastUpdateIndexCreated
 
   def get[T](internalId: String)(implicit reads : Reads[T]): Future[Option[T]] = {
     val selector = Json.obj("internalId" -> internalId)
@@ -62,9 +61,8 @@ abstract class TasksRepository(mongo: ReactiveMongoApi, config: Configuration)
       )
     )
 
-    collection
-      .flatMap(
-        _.findAndUpdate(selector, modifier, fetchNewObject = true)
+    collection.flatMap(
+        _.findAndUpdate(selector, modifier, fetchNewObject = false)
         .map(_.result[T])
       )
   }

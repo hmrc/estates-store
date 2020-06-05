@@ -17,16 +17,11 @@
 package uk.gov.hmrc.estatesstore.repositories
 
 import javax.inject.{Inject, Singleton}
-import play.api.Configuration
 import play.modules.reactivemongo.ReactiveMongoApi
 
-import scala.concurrent.ExecutionContext
-
 @Singleton
-class RegisterTasksRepository @Inject()(mongo: MongoDriver,
-                                        config: Configuration)(implicit ec : ExecutionContext)
-  extends TasksRepository(mongo, config) {
+class EstatesMongoDriver @Inject()(val api : ReactiveMongoApi) extends MongoDriver
 
-    override val collectionName: String = "registerTasks"
-
+sealed trait MongoDriver {
+  val api : ReactiveMongoApi
 }

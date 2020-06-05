@@ -19,12 +19,14 @@ package uk.gov.hmrc.estatesstore.config
 import com.google.inject.AbstractModule
 import uk.gov.hmrc.estatesstore.config.annotations.Register
 import uk.gov.hmrc.estatesstore.controllers.actions.{AuthenticatedIdentifierAction, IdentifierAction}
-import uk.gov.hmrc.estatesstore.repositories.{RegisterTasksRepository, TasksRepository}
+import uk.gov.hmrc.estatesstore.repositories.{EstatesMongoDriver, MongoDriver, RegisterTasksRepository, TasksRepository}
 
 class Module extends AbstractModule {
 
   override def configure(): Unit = {
     bind(classOf[TasksRepository]).annotatedWith(classOf[Register]).to(classOf[RegisterTasksRepository]).asEagerSingleton()
+
+    bind(classOf[MongoDriver]).to(classOf[EstatesMongoDriver]).asEagerSingleton()
 
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
   }
