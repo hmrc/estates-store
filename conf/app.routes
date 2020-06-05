@@ -2,8 +2,8 @@
 
 GET     /register/tasks                                uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.get()
 
-POST    /register/tasks                                uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.set()
-POST    /register/tasks/estate-details                 uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.completeDetails()
-POST    /register/tasks/personal-representative        uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.completePersonalRepresentative()
-POST    /register/tasks/deceased                       uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.completeDeceased()
-POST    /register/tasks/tax-liability                  uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.completeTaxLiability()
+POST    /register/tasks                                uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setDefaultState()
+POST    /register/tasks/estate-details                 uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setDetailsComplete()
+POST    /register/tasks/personal-representative        uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setPersonalRepresentativeComplete()
+POST    /register/tasks/deceased                       uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setDeceasedComplete()
+POST    /register/tasks/tax-liability                  uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setTaxLiabilityComplete()

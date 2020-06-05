@@ -75,7 +75,7 @@ class RegisterTaskListControllerSpec extends FreeSpec with SpecBase with GuiceOn
         yearsOfTaxLiability = false
       )
 
-      val request = FakeRequest(POST, routes.RegisterTaskListController.set().url).withBody(Json.toJson(tasks))
+      val request = FakeRequest(POST, routes.RegisterTaskListController.setDefaultState().url).withBody(Json.toJson(tasks))
 
       when(service.set(any(), any())).thenReturn(Future.successful(tasks))
 
@@ -88,7 +88,7 @@ class RegisterTaskListControllerSpec extends FreeSpec with SpecBase with GuiceOn
     }
     "must return BAD_REQUEST for invalid JSON" in {
 
-      val request = FakeRequest(POST, routes.RegisterTaskListController.set().url).withBody(Json.obj())
+      val request = FakeRequest(POST, routes.RegisterTaskListController.setDefaultState().url).withBody(Json.obj())
 
       val result = route(application, request).value
 
@@ -100,7 +100,7 @@ class RegisterTaskListControllerSpec extends FreeSpec with SpecBase with GuiceOn
   "invoking POST /register/tasks/estate-details" - {
 
     "must return Ok and the completed tasks" in {
-      val request = FakeRequest(POST, routes.RegisterTaskListController.completeDetails().url)
+      val request = FakeRequest(POST, routes.RegisterTaskListController.setDetailsComplete().url)
 
       val tasks = Tasks(
         details = false,
@@ -130,7 +130,7 @@ class RegisterTaskListControllerSpec extends FreeSpec with SpecBase with GuiceOn
   "invoking POST /register/tasks/personal-representative" - {
 
     "must return Ok and the completed tasks" in {
-      val request = FakeRequest(POST, routes.RegisterTaskListController.completePersonalRepresentative().url)
+      val request = FakeRequest(POST, routes.RegisterTaskListController.setPersonalRepresentativeComplete().url)
 
       val tasks = Tasks(
         details = false,
@@ -160,7 +160,7 @@ class RegisterTaskListControllerSpec extends FreeSpec with SpecBase with GuiceOn
   "invoking POST /register/tasks/deceased" - {
 
     "must return Ok and the completed tasks" in {
-      val request = FakeRequest(POST, routes.RegisterTaskListController.completeDeceased().url)
+      val request = FakeRequest(POST, routes.RegisterTaskListController.setDeceasedComplete().url)
 
       val tasks = Tasks(
         details = false,
@@ -190,7 +190,7 @@ class RegisterTaskListControllerSpec extends FreeSpec with SpecBase with GuiceOn
   "invoking POST /register/tasks/tax-liability" - {
 
     "must return Ok and the completed tasks" in {
-      val request = FakeRequest(POST, routes.RegisterTaskListController.completeTaxLiability().url)
+      val request = FakeRequest(POST, routes.RegisterTaskListController.setTaxLiabilityComplete().url)
 
       val tasks = Tasks(
         details = false,

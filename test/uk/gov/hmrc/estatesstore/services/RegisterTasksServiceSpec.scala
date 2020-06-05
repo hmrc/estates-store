@@ -28,6 +28,7 @@ import play.api.Application
 import play.api.inject.bind
 import uk.gov.hmrc.estatesstore.SpecBase
 import uk.gov.hmrc.estatesstore.config.annotations.Register
+import uk.gov.hmrc.estatesstore.models.register.Operations.UpdatePersonalRepresentative
 import uk.gov.hmrc.estatesstore.models.register.{TaskCache, Tasks}
 import uk.gov.hmrc.estatesstore.repositories.TasksRepository
 
@@ -77,7 +78,7 @@ class RegisterTasksServiceSpec extends FreeSpec with SpecBase with GuiceOneAppPe
 
   "invoking .set" - {
 
-    "must set an updated Task" in {
+    "must set default Tasks" in {
 
       val task = Tasks(details = true, personalRepresentative = true, deceased = false, yearsOfTaxLiability = false)
 
@@ -88,7 +89,22 @@ class RegisterTasksServiceSpec extends FreeSpec with SpecBase with GuiceOneAppPe
       result mustBe task
     }
 
+  }
+
+  "invoking .set for an update" - {
+
+    "must set an updated Task" in {
+
+      val task = Tasks(details = true, personalRepresentative = false, deceased = false, yearsOfTaxLiability = false)
+
+      when(repository.set[TaskCache](any(), any())(any())).thenReturn(Future.successful(true))
+
+      val result = service.set("internalId", UpdatePersonalRepresentative, task).futureValue
+
+      result mustBe Tasks(details = true, personalRepresentative = true, deceased = false, yearsOfTaxLiability = false)
+    }
 
   }
+
 
 }

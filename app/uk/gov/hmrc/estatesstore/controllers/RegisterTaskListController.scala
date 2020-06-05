@@ -48,7 +48,7 @@ class RegisterTaskListController @Inject()(
 			}
 	}
 
-	def set: Action[JsValue] = authAction.async(parse.json) {
+	def setDefaultState: Action[JsValue] = authAction.async(parse.json) {
 		request =>
 			request.body.validate[Tasks] match {
 				case JsSuccess(tasks, _) =>
@@ -59,22 +59,22 @@ class RegisterTaskListController @Inject()(
 			}
 	}
 
-	def completeDetails: Action[AnyContent] = authAction.async {
+	def setDetailsComplete: Action[AnyContent] = authAction.async {
 		implicit request =>
 			updateTask(request.internalId, UpdateDetails)
 	}
 
-	def completePersonalRepresentative: Action[AnyContent] = authAction.async {
+	def setPersonalRepresentativeComplete: Action[AnyContent] = authAction.async {
 		implicit request =>
 			updateTask(request.internalId, UpdatePersonalRepresentative)
 	}
 
-	def completeDeceased: Action[AnyContent] = authAction.async {
+	def setDeceasedComplete: Action[AnyContent] = authAction.async {
 		implicit request =>
 			updateTask(request.internalId, UpdateDeceased)
 	}
 
-	def completeTaxLiability: Action[AnyContent] = authAction.async {
+	def setTaxLiabilityComplete: Action[AnyContent] = authAction.async {
 		implicit request =>
 			updateTask(request.internalId, UpdateTaxLiability)
 	}
