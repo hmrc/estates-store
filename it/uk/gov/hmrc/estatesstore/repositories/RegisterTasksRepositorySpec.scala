@@ -15,27 +15,24 @@ class RegisterTasksRepositorySpec extends AsyncFreeSpec with MustMatchers
 
   val internalId = "Int-328969d0-557e-4559-96ba-074d0597107e"
 
-  def assertMongoTest(application: Application)(block: => Assertion) : Future[Assertion] = for {
-      connection <- Future.fromTry(getConnection(application))
-      _ <- dropTheDatabase(connection)
-      result <- block
-    } yield {
-      application.stop()
-      result
-    }
+  def assertMongoTest(application: Application)(block: Application => Assertion) : Future[Assertion] =
+    running(application) {
+      for {
+        connection <- Future.fromTry(getConnection(application))
+        _ <- dropTheDatabase(connection)
+      } yield block(application)
+  }
 
   "a tasks repository" - {
 
-    "must return None when no cache exists" in running(application) {
-      assertMongoTest(application) {
-        val repository = application.injector.instanceOf[TasksRepository]
+    "must return None when no cache exists" in assertMongoTest(application) {
+      app =>
+        val repository = app.injector.instanceOf[TasksRepository]
         repository.get[TaskCache](internalId).futureValue mustBe None
       }
-    }
 
-    "must return TaskCache when one exists" in running(application) {
-      assertMongoTest(application) {
-        val repository = application.injector.instanceOf[TasksRepository]
+    "must return TaskCache when one exists" in assertMongoTest(application) { app =>
+        val repository = app.injector.instanceOf[TasksRepository]
 
         val task = Tasks(details = false, personalRepresentative = false, deceased = false, yearsOfTaxLiability = false)
 
@@ -47,11 +44,9 @@ class RegisterTasksRepositorySpec extends AsyncFreeSpec with MustMatchers
 
         repository.get[TaskCache](internalId).futureValue.value.tasks mustBe task
       }
-    }
 
-    "must set an updated Task and return one that exists for that user" in running(application) {
-      assertMongoTest(application) {
-        val repository = application.injector.instanceOf[TasksRepository]
+    "must set an updated Task and return one that exists for that user" in assertMongoTest(application) { app =>
+        val repository = app.injector.instanceOf[TasksRepository]
 
         val task = Tasks(details = true, personalRepresentative = false, deceased = false, yearsOfTaxLiability = false)
 
@@ -71,6 +66,5 @@ class RegisterTasksRepositorySpec extends AsyncFreeSpec with MustMatchers
 
         repository.get[TaskCache](internalId).futureValue.value.tasks mustBe updatedTask
       }
-    }
   }
 }
