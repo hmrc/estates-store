@@ -21,14 +21,11 @@ import org.scalatest.{FreeSpec, MustMatchers}
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, BodyParsers, Results}
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.estatesstore.SpecBase
 import uk.gov.hmrc.estatesstore.connectors.{FakeAuthConnector, FakeFailingAuthConnector}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import scala.concurrent.Future
 
 class IdentifierActionSpec extends FreeSpec with SpecBase with MustMatchers {
@@ -39,51 +36,19 @@ class IdentifierActionSpec extends FreeSpec with SpecBase with MustMatchers {
     def onSubmit(): Action[JsValue] = authAction.apply(BodyParsers.parse.json) { _ => Results.Ok }
   }
 
-  private def authRetrievals(affinityGroup: AffinityGroup) =
-    Future.successful(new ~(Some("id"), Some(affinityGroup)))
+  private def authRetrievals = Future.successful(Some("id"))
 
   private def insufficientAuthRetrievals =
-    Future.successful(new ~(None, None))
-
-  private val agentAffinityGroup = AffinityGroup.Agent
-  private val orgAffinityGroup = AffinityGroup.Organisation
+    Future.successful(None)
 
   "Auth Action must" - {
 
-    "when Agent user" - {
+    "allow user to continue" in {
+      val authAction = new AuthenticatedIdentifierAction(new FakeAuthConnector(authRetrievals), appConfig, bodyParsers)
+      val controller = new Harness(authAction)
+      val result = controller.onSubmit()(fakeRequest)
 
-      "allow user to continue" in {
-        val authAction = new AuthenticatedIdentifierAction(new FakeAuthConnector(authRetrievals(agentAffinityGroup)), appConfig, bodyParsers)
-        val controller = new Harness(authAction)
-        val result = controller.onSubmit()(fakeRequest)
-
-        status(result) mustBe OK
-      }
-
-    }
-
-    "when Organisation user" - {
-
-      "allow user to continue" - {
-        val authAction = new AuthenticatedIdentifierAction(new FakeAuthConnector(authRetrievals(orgAffinityGroup)), appConfig, bodyParsers)
-        val controller = new Harness(authAction)
-        val result = controller.onSubmit()(fakeRequest)
-
-        status(result) mustBe OK
-      }
-
-    }
-
-    "when Individual user" - {
-
-      "be returned an unauthorized response" in {
-        val authAction = new AuthenticatedIdentifierAction(new FakeAuthConnector(authRetrievals(Individual)), appConfig, bodyParsers)
-        val controller = new Harness(authAction)
-        val result = controller.onSubmit()(fakeRequest)
-
-        status(result) mustBe UNAUTHORIZED
-      }
-
+      status(result) mustBe OK
     }
 
     "the user hasn't logged in" - {

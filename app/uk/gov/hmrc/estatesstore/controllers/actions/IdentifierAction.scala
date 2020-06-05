@@ -20,10 +20,8 @@ import com.google.inject.Inject
 import play.api.Logger
 import play.api.mvc.Results._
 import play.api.mvc.{Request, Result, _}
-import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.estatesstore.config.AppConfig
 import uk.gov.hmrc.estatesstore.models.requests.IdentifierRequest
 import uk.gov.hmrc.http.HeaderCarrier
@@ -40,26 +38,19 @@ class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthCo
   def invokeBlock[A](request: Request[A],
                      block: IdentifierRequest[A] => Future[Result]) : Future[Result] = {
 
-    val retrievals = Retrievals.internalId and
-                     Retrievals.affinityGroup
+    val retrievals = Retrievals.internalId
 
     implicit val hc : HeaderCarrier = HeaderCarrierConverter.fromHeadersAndSession(request.headers)
 
     authorised().retrieve(retrievals) {
-      case Some(internalId) ~ Some(affinityGroup) =>
-        affinityGroup match {
-          case Individual =>
-            Logger.info(s"[IdentifierAction] Unsupported affinityGroup")
-            Future.successful(Unauthorized)
-          case _ =>
-            block(IdentifierRequest(request, internalId))
-        }
+      case Some(internalId) =>
+        block(IdentifierRequest(request, internalId))
       case _ =>
-        Logger.info(s"[IdentifierAction] Insufficient retrievals")
+        Logger.warn(s"[IdentifierAction] no internal id")
         Future.successful(Unauthorized)
     } recoverWith {
       case e : AuthorisationException =>
-        Logger.info(s"[IdentifierAction] AuthorisationException: ${e.reason}")
+        Logger.error(s"[IdentifierAction] AuthorisationException: ${e.reason}")
         Future.successful(Unauthorized)
     }
   }
