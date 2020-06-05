@@ -32,7 +32,7 @@ object TaskCache extends MongoDateTimeFormats {
   implicit lazy val reads: Reads[TaskCache] = {
     (
       (__ \ "internalId").read[String] and
-        (__ \ "task").read[Tasks] and
+        (__ \ "tasks").read[Tasks] and
         (__ \ "lastUpdated").read(localDateTimeRead)
       ) (TaskCache.apply _)
   }
@@ -40,7 +40,7 @@ object TaskCache extends MongoDateTimeFormats {
   implicit lazy val writes: OWrites[TaskCache] = {
     (
       (__ \ "internalId").write[String] and
-        (__ \ "task").write[Tasks] and
+        (__ \ "tasks").write[Tasks] and
         (__ \ "lastUpdated").write(localDateTimeWrite)
       ) (unlift(TaskCache.unapply))
   }
