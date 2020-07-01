@@ -217,4 +217,33 @@ class RegisterTaskListControllerSpec extends FreeSpec with SpecBase with GuiceOn
 
   }
 
+  "invoking POST /register/tasks/tax-liability/reset" - {
+
+    "must return Ok and the completed tasks" in {
+      val request = FakeRequest(POST, routes.RegisterTaskListController.setTaxLiabilityComplete().url)
+
+      val tasks = Tasks(
+        details = false,
+        personalRepresentative = false,
+        deceased = true,
+        yearsOfTaxLiability = true
+      )
+
+      val updatedTasks = Tasks(
+        details = false,
+        personalRepresentative = false,
+        deceased = true,
+        yearsOfTaxLiability = false
+      )
+
+      when(service.get(any())).thenReturn(Future.successful(tasks))
+      when(service.set(any(), any(), any())).thenReturn(Future.successful(updatedTasks))
+
+      val result = route(application, request).value
+
+      status(result) mustBe Status.OK
+      contentAsJson(result) mustBe Json.toJson(updatedTasks)
+    }
+
+  }
 }
