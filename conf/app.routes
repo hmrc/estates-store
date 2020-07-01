@@ -7,3 +7,4 @@ POST    /register/tasks/estate-details                 uk.gov.hmrc.estatesstore.
 POST    /register/tasks/personal-representative        uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setPersonalRepresentativeComplete()
 POST    /register/tasks/deceased                       uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setDeceasedComplete()
 POST    /register/tasks/tax-liability                  uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setTaxLiabilityComplete()
+POST    /register/tasks/tax-liability/reset            uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.resetTaxLiability()

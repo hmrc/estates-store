@@ -39,6 +39,13 @@ class RegisterTaskListController @Inject()(
 		Ok(Json.toJson(savedTasks))
 	}
 
+	private def resetTask(internalId: String, operation: UpdateOperation) = for {
+		tasks <- service.get(internalId)
+		savedTasks <- service.reset(internalId, operation, tasks)
+	} yield {
+		Ok(Json.toJson(savedTasks))
+	}
+
 	def get: Action[AnyContent] = authAction.async {
 		request =>
 
@@ -79,4 +86,8 @@ class RegisterTaskListController @Inject()(
 			updateTask(request.internalId, UpdateTaxLiability)
 	}
 
+	def resetTaxLiability: Action[AnyContent] = authAction.async {
+		implicit request =>
+			resetTask(request.internalId, UpdateTaxLiability)
+	}
 }

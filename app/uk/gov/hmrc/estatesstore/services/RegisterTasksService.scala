@@ -52,6 +52,14 @@ class RegisterTasksService @Inject()(@Register tasksRepository: TasksRepository)
     }
   }
 
+  def reset(internalId: String, operation: UpdateOperation, tasks: Tasks) : Future[Tasks] = {
+    resetTask(operation, tasks) flatMap {
+      updated =>
+        val cache = TaskCache(internalId, updated)
+        save(internalId, cache)
+    }
+  }
+
   private def save(internalId: String, cache: TaskCache) = {
     tasksRepository.set[TaskCache](internalId, cache).map(_ => cache.tasks)
   }
@@ -63,6 +71,17 @@ class RegisterTasksService @Inject()(@Register tasksRepository: TasksRepository)
         case UpdatePersonalRepresentative => tasks.copy(personalRepresentative = true)
         case UpdateDeceased => tasks.copy(deceased = true)
         case UpdateTaxLiability => tasks.copy(yearsOfTaxLiability = true)
+      }
+    }
+  }
+
+  private def resetTask(operation: UpdateOperation, tasks: Tasks) = {
+    Future.successful {
+      operation match {
+        case UpdateDetails => tasks.copy(details = false)
+        case UpdatePersonalRepresentative => tasks.copy(personalRepresentative = false)
+        case UpdateDeceased => tasks.copy(deceased = false)
+        case UpdateTaxLiability => tasks.copy(yearsOfTaxLiability = false)
       }
     }
   }
