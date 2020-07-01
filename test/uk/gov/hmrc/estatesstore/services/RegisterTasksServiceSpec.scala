@@ -114,7 +114,7 @@ class RegisterTasksServiceSpec extends FreeSpec with SpecBase with GuiceOneAppPe
 
       when(repository.set[TaskCache](any(), any())(any())).thenReturn(Future.successful(true))
 
-      val result = service.set("internalId", UpdateTaxLiability, task).futureValue
+      val result = service.reset("internalId", UpdateTaxLiability, task).futureValue
 
       result mustBe Tasks(details = true, personalRepresentative = false, deceased = false, yearsOfTaxLiability = false)
     }
