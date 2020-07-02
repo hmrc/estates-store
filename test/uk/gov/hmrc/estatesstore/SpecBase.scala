@@ -16,30 +16,46 @@
 
 package uk.gov.hmrc.estatesstore
 
-import org.scalatest.TestSuite
+import org.scalatest._
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.MimeTypes
-import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.inject.{Injector, bind}
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{BodyParsers, PlayBodyParsers}
+import play.api.mvc.PlayBodyParsers
 import play.api.test.FakeRequest
 import play.api.test.Helpers.CONTENT_TYPE
 import uk.gov.hmrc.estatesstore.config.AppConfig
 import uk.gov.hmrc.estatesstore.controllers.actions.{FakeIdentifierAction, IdentifierAction}
+import uk.gov.hmrc.http.HeaderCarrier
 
-trait SpecBase extends GuiceOneAppPerSuite {
-  this: TestSuite =>
+class SpecBase extends FreeSpec
+  with GuiceOneAppPerSuite
+  with MustMatchers
+  with MockitoSugar
+  with OptionValues
+  with EitherValues
+  with ScalaFutures
+  with Inside
+  with BeforeAndAfterEach
+  with BeforeAndAfter {
+  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+
+  def injector: Injector = app.injector
+
+  def appConfig: AppConfig = injector.instanceOf[AppConfig]
+
+  def fakeUtr: String = "1234567890"
+
+  def fakeInternalId: String = "Int-328969d0-557e-4559-96ba-074d0597107e"
 
   def fakeRequest: FakeRequest[JsValue] = FakeRequest("POST", "")
     .withHeaders(CONTENT_TYPE -> MimeTypes.JSON)
     .withBody(Json.parse("{}"))
 
-  def injectedParsers: PlayBodyParsers = app.injector.instanceOf[PlayBodyParsers]
-
-  def appConfig: AppConfig = app.injector.instanceOf[AppConfig]
-
-  def bodyParsers: BodyParsers.Default = app.injector.instanceOf[BodyParsers.Default]
+  def injectedParsers: PlayBodyParsers = injector.instanceOf[PlayBodyParsers]
 
   protected def applicationBuilder(): GuiceApplicationBuilder = {
     new GuiceApplicationBuilder()
@@ -55,3 +71,9 @@ trait SpecBase extends GuiceOneAppPerSuite {
   }
 
 }
+
+
+
+
+
+
