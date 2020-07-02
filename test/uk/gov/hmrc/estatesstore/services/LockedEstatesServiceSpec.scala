@@ -23,22 +23,22 @@ import play.api.Application
 import play.api.inject.bind
 import reactivemongo.api.commands.WriteError
 import uk.gov.hmrc.estatesstore.SpecBase
-import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateClaim
-import uk.gov.hmrc.estatesstore.models.claim_an_estate.responses.{GetClaimFound, GetClaimNotFound, StoreErrorsResponse, StoreParsingError, StoreSuccessResponse}
+import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateLock
+import uk.gov.hmrc.estatesstore.models.claim_an_estate.responses.{GetLockFound, GetLockNotFound, StoreErrorsResponse, StoreParsingError, StoreSuccessResponse}
 import uk.gov.hmrc.estatesstore.models.repository.StorageErrors
-import uk.gov.hmrc.estatesstore.repositories.ClaimedEstatesRepository
+import uk.gov.hmrc.estatesstore.repositories.LockedEstatesRepository
 
 import scala.concurrent.Future
 
-class ClaimedEstatesServiceSpec extends SpecBase {
+class LockedEstatesServiceSpec extends SpecBase {
 
-  private val repository = mock[ClaimedEstatesRepository]
+  private val repository = mock[LockedEstatesRepository]
 
   lazy val application: Application = applicationBuilder().overrides(
-    bind[ClaimedEstatesRepository].toInstance(repository)
+    bind[LockedEstatesRepository].toInstance(repository)
   ).build()
 
-  private val service = application.injector.instanceOf[ClaimedEstatesService]
+  private val service = application.injector.instanceOf[LockedEstatesService]
 
   override def beforeEach(): Unit = {
     Mockito.reset(repository)
@@ -46,13 +46,13 @@ class ClaimedEstatesServiceSpec extends SpecBase {
 
   "invoking .get" - {
     "must return a GetClaimFoundResponse from the repository if there is one for the given internal id" in {
-      val estateClaim = EstateClaim(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
+      val estateLock = EstateLock(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
 
-      when(repository.get(any())).thenReturn(Future.successful(Some(estateClaim)))
+      when(repository.get(any())).thenReturn(Future.successful(Some(estateLock)))
 
       val result = service.get("matching-internal-id").futureValue
 
-      result mustBe GetClaimFound(estateClaim)
+      result mustBe GetLockFound(estateLock)
     }
 
     "must return a GetClaimNotFoundResponse from the repository if there is no claims for the given internal id" in {
@@ -60,34 +60,34 @@ class ClaimedEstatesServiceSpec extends SpecBase {
 
       val result = service.get("unmatched-internal-id").futureValue
 
-      result mustBe GetClaimNotFound
+      result mustBe GetLockNotFound
     }
   }
 
   "invoking .store" - {
-    "must return a StoreSuccessResponse from the repository if the EstateClaim is successfully stored" in {
+    "must return a StoreSuccessResponse from the repository if the EstateLock is successfully stored" in {
 
-      val estateClaim = EstateClaim(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
+      val estateLock = EstateLock(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
 
-      when(repository.store(any())).thenReturn(Future.successful(Right(estateClaim)))
+      when(repository.store(any())).thenReturn(Future.successful(Right(estateLock)))
 
       val result = service.store(fakeInternalId, Some(fakeUtr), Some(true), None).futureValue
 
-      result mustBe StoreSuccessResponse(estateClaim)
+      result mustBe StoreSuccessResponse(estateLock)
     }
 
-    "must return a StoreSuccessResponse from the repository if the EstateClaim is successfully stored with estateLocked" in {
+    "must return a StoreSuccessResponse from the repository if the EstateLock is successfully stored with estateLocked" in {
 
-      val estateClaim = EstateClaim(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
+      val estateLock = EstateLock(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
 
-      when(repository.store(any())).thenReturn(Future.successful(Right(estateClaim)))
+      when(repository.store(any())).thenReturn(Future.successful(Right(estateLock)))
 
       val result = service.store(fakeInternalId, Some(fakeUtr), Some(true), Some(true)).futureValue
 
-      result mustBe StoreSuccessResponse(estateClaim)
+      result mustBe StoreSuccessResponse(estateLock)
     }
 
-    "must return a StoreParsingErrorResponse if the request body cannot be parsed into a EstateClaim" in {
+    "must return a StoreParsingErrorResponse if the request body cannot be parsed into a EstateLock" in {
       val result = service.store(fakeInternalId, None, None, None).futureValue
 
       result mustBe StoreParsingError

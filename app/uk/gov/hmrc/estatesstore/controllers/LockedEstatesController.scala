@@ -23,26 +23,26 @@ import uk.gov.hmrc.play.bootstrap.controller.BackendController
 import uk.gov.hmrc.estatesstore.controllers.actions.IdentifierAction
 import uk.gov.hmrc.estatesstore.models.claim_an_estate.responses._
 import uk.gov.hmrc.estatesstore.models.responses.ErrorResponse
-import uk.gov.hmrc.estatesstore.services.ClaimedEstatesService
-import uk.gov.hmrc.estatesstore.models.claim_an_estate.responses.ClaimedEstateResponse._
+import uk.gov.hmrc.estatesstore.services.LockedEstatesService
+import uk.gov.hmrc.estatesstore.models.claim_an_estate.responses.LockedEstateResponse._
 import uk.gov.hmrc.estatesstore.models.responses.ErrorResponse._
 
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class ClaimedEstatesController @Inject()(
-	cc: ControllerComponents,
- 	service: ClaimedEstatesService,
-	authAction: IdentifierAction)(implicit ec: ExecutionContext) extends BackendController(cc) {
+class LockedEstatesController @Inject()(
+																				 cc: ControllerComponents,
+																				 service: LockedEstatesService,
+																				 authAction: IdentifierAction)(implicit ec: ExecutionContext) extends BackendController(cc) {
 
 	def get(): Action[AnyContent] = authAction.async {
 		implicit request =>
 
 			service.get(request.internalId) map {
-				case GetClaimFound(estateClaim) =>
-					Ok(estateClaim.toResponse)
-				case GetClaimNotFound =>
-					NotFound(Json.toJson(ErrorResponse(NOT_FOUND, CLAIM_ESTATE_UNABLE_TO_LOCATE)))
+				case GetLockFound(estateLock) =>
+					Ok(estateLock.toResponse)
+				case GetLockNotFound =>
+					NotFound(Json.toJson(ErrorResponse(NOT_FOUND, LOCKED_ESTATE_UNABLE_TO_LOCATE)))
 			}
 	}
 
@@ -55,10 +55,10 @@ class ClaimedEstatesController @Inject()(
 			val internalId = request.internalId
 
 			service.store(internalId, maybeUtr, maybeManagedByAgent, maybeEstateLocked) map {
-				case StoreSuccessResponse(estateClaim) =>
-					Created(estateClaim.toResponse)
+				case StoreSuccessResponse(estateLock) =>
+					Created(estateLock.toResponse)
 				case StoreParsingError =>
-					BadRequest(Json.toJson(ErrorResponse(BAD_REQUEST, CLAIM_ESTATE_UNABLE_TO_PARSE)))
+					BadRequest(Json.toJson(ErrorResponse(BAD_REQUEST, LOCKED_ESTATE_UNABLE_TO_PARSE)))
 				case StoreErrorsResponse(storageErrors) =>
 					InternalServerError(Json.toJson(ErrorResponse(INTERNAL_SERVER_ERROR, UNABLE_TO_STORE, Some(storageErrors.toJson))))
 			}

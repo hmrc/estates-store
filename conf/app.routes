@@ -9,5 +9,5 @@ POST    /register/tasks/deceased                       uk.gov.hmrc.estatesstore.
 POST    /register/tasks/tax-liability                  uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setTaxLiabilityComplete()
 POST    /register/tasks/tax-liability/reset            uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.resetTaxLiability()
 
-GET     /claim                                         uk.gov.hmrc.estatesstore.controllers.ClaimedEstatesController.get()
-POST    /claim                                         uk.gov.hmrc.estatesstore.controllers.ClaimedEstatesController.store()
+GET     /lock                                         uk.gov.hmrc.estatesstore.controllers.LockedEstatesController.get()
+POST    /lock                                         uk.gov.hmrc.estatesstore.controllers.LockedEstatesController.store()

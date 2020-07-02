@@ -22,7 +22,7 @@ import reactivemongo.api.commands.WriteError
 import uk.gov.hmrc.estatesstore.SpecBase
 import uk.gov.hmrc.estatesstore.models.responses.ErrorResponse
 import uk.gov.hmrc.estatesstore.models.responses.ErrorResponse._
-import uk.gov.hmrc.estatesstore.models.claim_an_estate.responses.ClaimedEstateResponse._
+import uk.gov.hmrc.estatesstore.models.claim_an_estate.responses.LockedEstateResponse._
 import uk.gov.hmrc.estatesstore.models.repository.StorageErrors
 
 class ErrorResponseSpec extends SpecBase {
@@ -37,12 +37,12 @@ class ErrorResponseSpec extends SpecBase {
           """
             |{
             | "status": 404,
-            | "message": "unable to locate an EstateClaim for the given requests internalId"
+            | "message": "unable to locate an EstateLock for the given requests internalId"
             |}
           """.stripMargin
         )
 
-      val errorResponseJson = Json.toJson(ErrorResponse(status = NOT_FOUND, message = CLAIM_ESTATE_UNABLE_TO_LOCATE, errors = None))
+      val errorResponseJson = Json.toJson(ErrorResponse(status = NOT_FOUND, message = LOCKED_ESTATE_UNABLE_TO_LOCATE, errors = None))
 
       errorResponseJson mustBe expectedJson
     }

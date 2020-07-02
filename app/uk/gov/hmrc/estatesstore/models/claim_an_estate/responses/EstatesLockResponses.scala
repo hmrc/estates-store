@@ -16,19 +16,19 @@
 
 package uk.gov.hmrc.estatesstore.models.claim_an_estate.responses
 
-import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateClaim
+import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateLock
 import uk.gov.hmrc.estatesstore.models.repository.StorageErrors
 
-trait ClaimedEstateResponse
+trait LockedEstateResponse
 
-object ClaimedEstateResponse {
-  val CLAIM_ESTATE_UNABLE_TO_LOCATE = "unable to locate an EstateClaim for the given requests internalId"
-  val CLAIM_ESTATE_UNABLE_TO_PARSE = "Unable to parse request body into a EstateClaim"
+object LockedEstateResponse {
+  val LOCKED_ESTATE_UNABLE_TO_LOCATE = "unable to locate an EstateLock for the given requests internalId"
+  val LOCKED_ESTATE_UNABLE_TO_PARSE = "Unable to parse request body into a EstateLock"
 }
 
-case class GetClaimFound(foundEstateClaim: EstateClaim) extends ClaimedEstateResponse
-case object GetClaimNotFound extends ClaimedEstateResponse
+case class GetLockFound(foundEstateLock: EstateLock) extends LockedEstateResponse
+case object GetLockNotFound extends LockedEstateResponse
 
-case class StoreErrorsResponse(errors: StorageErrors) extends ClaimedEstateResponse
-case class StoreSuccessResponse(storedEstateClaim: EstateClaim) extends ClaimedEstateResponse
-case object StoreParsingError extends ClaimedEstateResponse
+case class StoreErrorsResponse(errors: StorageErrors) extends LockedEstateResponse
+case class StoreSuccessResponse(storedEstateLock: EstateLock) extends LockedEstateResponse
+case object StoreParsingError extends LockedEstateResponse

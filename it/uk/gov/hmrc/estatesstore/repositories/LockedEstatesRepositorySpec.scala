@@ -8,12 +8,12 @@ import org.scalatest.concurrent.ScalaFutures
 import play.api.Application
 import play.api.test.Helpers._
 import uk.gov.hmrc.estatesstore.MongoSuite
-import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateClaim
+import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateLock
 
 import scala.concurrent.Future
 import scala.language.implicitConversions
 
-class ClaimedEstatesRepositorySpec extends AsyncFreeSpec with MustMatchers
+class LockedEstatesRepositorySpec extends AsyncFreeSpec with MustMatchers
   with ScalaFutures with OptionValues with Inside with MongoSuite with EitherValues {
 
   "a claimed estates repository" - {
@@ -30,16 +30,16 @@ class ClaimedEstatesRepositorySpec extends AsyncFreeSpec with MustMatchers
 
     "must be able to store, retrieve and remove estates claims" in assertMongoTest(application) { app =>
 
-      val repository = app.injector.instanceOf[ClaimedEstatesRepository]
+      val repository = app.injector.instanceOf[LockedEstatesRepository]
 
       val lastUpdated = LocalDateTime.parse("2000-01-01 12:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
 
-      val estateClaim = EstateClaim(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
+      val estateLock = EstateLock(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
 
-      val storedClaim = repository.store(estateClaim).futureValue.right.value
+      val storedClaim = repository.store(estateLock).futureValue.right.value
 
       inside(storedClaim) {
-        case EstateClaim(id, utr, mba, tl, ldt) =>
+        case EstateLock(id, utr, mba, tl, ldt) =>
           id mustEqual internalId
           utr mustEqual storedClaim.utr
           mba mustEqual storedClaim.managedByAgent
@@ -47,7 +47,7 @@ class ClaimedEstatesRepositorySpec extends AsyncFreeSpec with MustMatchers
           ldt mustEqual storedClaim.lastUpdated
       }
 
-      repository.get(internalId).futureValue.value mustBe estateClaim
+      repository.get(internalId).futureValue.value mustBe estateLock
 
       repository.remove(internalId).futureValue
 
@@ -56,15 +56,15 @@ class ClaimedEstatesRepositorySpec extends AsyncFreeSpec with MustMatchers
 
     "must be able to update a estate claim with the same auth id" in assertMongoTest(application) { app =>
 
-      val repository = app.injector.instanceOf[ClaimedEstatesRepository]
+      val repository = app.injector.instanceOf[LockedEstatesRepository]
 
       val lastUpdated = LocalDateTime.parse("2000-01-01 12:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
 
-      val estateClaim = EstateClaim(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
+      val estateLock = EstateLock(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
 
-      repository.store(estateClaim).futureValue.right.value
+      repository.store(estateLock).futureValue.right.value
 
-      val updatedClaim = repository.store(estateClaim.copy(utr = "0987654321")).futureValue
+      val updatedClaim = repository.store(estateLock.copy(utr = "0987654321")).futureValue
 
       updatedClaim must be('right)
     }

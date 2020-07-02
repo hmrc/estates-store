@@ -24,15 +24,15 @@ import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
 import reactivemongo.play.json.collection.JSONCollection
-import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateClaim
+import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateLock
 import uk.gov.hmrc.estatesstore.models.repository.StorageErrors
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
-class ClaimedEstatesRepository @Inject()(mongo: MongoDriver,
-                                         config: Configuration)
-                                        (implicit ec: ExecutionContext) {
+class LockedEstatesRepository @Inject()(mongo: MongoDriver,
+                                        config: Configuration)
+                                       (implicit ec: ExecutionContext) {
 
   val collectionName: String = "claimAttempts"
 
@@ -55,25 +55,25 @@ class ClaimedEstatesRepository @Inject()(mongo: MongoDriver,
     lastUpdateIndexCreated  <- collection.indexesManager.ensure(lastUpdatedIndex)
   } yield lastUpdateIndexCreated
 
-  def get(internalId: String): Future[Option[EstateClaim]] =
-    collection.flatMap(_.find(Json.obj("_id" -> internalId), projection = None).one[EstateClaim])
+  def get(internalId: String): Future[Option[EstateLock]] =
+    collection.flatMap(_.find(Json.obj("_id" -> internalId), projection = None).one[EstateLock])
 
-  def remove(internalId: String): Future[Option[EstateClaim]] =
-    collection.flatMap(_.findAndRemove(Json.obj("_id" -> internalId)).map(_.result[EstateClaim]))
+  def remove(internalId: String): Future[Option[EstateLock]] =
+    collection.flatMap(_.findAndRemove(Json.obj("_id" -> internalId)).map(_.result[EstateLock]))
 
-  def store(estateClaim: EstateClaim): Future[Either[StorageErrors, EstateClaim]] = {
+  def store(estateLock: EstateLock): Future[Either[StorageErrors, EstateLock]] = {
 
     val selector = Json.obj(
-      "_id" -> estateClaim.internalId
+      "_id" -> estateLock.internalId
     )
 
     val modifier = Json.obj(
-      "$set" -> estateClaim
+      "$set" -> estateLock
     )
 
     collection.flatMap(_.update.one(q = selector, u = modifier, upsert = true, multi = false)).map {
       case result if result.writeErrors.nonEmpty => Left(StorageErrors(result.writeErrors))
-      case _ => Right(estateClaim)
+      case _ => Right(estateLock)
     }
   }
 }

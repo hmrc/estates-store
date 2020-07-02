@@ -27,21 +27,21 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import reactivemongo.api.commands.WriteError
 import uk.gov.hmrc.estatesstore.SpecBase
-import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateClaim
-import uk.gov.hmrc.estatesstore.models.claim_an_estate.responses.{GetClaimFound, GetClaimNotFound, StoreErrorsResponse, StoreParsingError, StoreSuccessResponse}
+import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateLock
+import uk.gov.hmrc.estatesstore.models.claim_an_estate.responses.{GetLockFound, GetLockNotFound, StoreErrorsResponse, StoreParsingError, StoreSuccessResponse}
 import uk.gov.hmrc.estatesstore.models.repository.StorageErrors
-import uk.gov.hmrc.estatesstore.services.ClaimedEstatesService
+import uk.gov.hmrc.estatesstore.services.LockedEstatesService
 
 import scala.concurrent.Future
 
 
-class ClaimedEstatesControllerSpec extends SpecBase {
+class LockedEstatesControllerSpec extends SpecBase {
 
 
-  private val service: ClaimedEstatesService = mock[ClaimedEstatesService]
+  private val service: LockedEstatesService = mock[LockedEstatesService]
 
   lazy val application: Application = applicationBuilder().overrides(
-    bind[ClaimedEstatesService].toInstance(service)
+    bind[LockedEstatesService].toInstance(service)
   ).build()
 
   override def beforeEach(): Unit = {
@@ -49,32 +49,32 @@ class ClaimedEstatesControllerSpec extends SpecBase {
   }
 
   "invoking GET /claim" - {
-    "must return OK and a EstateClaim if there is one for the internal id" in {
-      val request = FakeRequest(GET, routes.ClaimedEstatesController.get().url)
+    "must return OK and a EstateLock if there is one for the internal id" in {
+      val request = FakeRequest(GET, routes.LockedEstatesController.get().url)
 
-      val estateClaim = EstateClaim(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
+      val estateLock = EstateLock(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
 
-      when(service.get(any())).thenReturn(Future.successful(GetClaimFound(estateClaim)))
+      when(service.get(any())).thenReturn(Future.successful(GetLockFound(estateLock)))
 
       val result = route(application, request).value
 
       status(result) mustBe Status.OK
-      contentAsJson(result) mustBe estateClaim.toResponse
+      contentAsJson(result) mustBe estateLock.toResponse
     }
 
-    "must return NOT_FOUND if there is no EstateClaim for the internal id" in {
-      val request = FakeRequest(GET, routes.ClaimedEstatesController.get().url)
+    "must return NOT_FOUND if there is no EstateLock for the internal id" in {
+      val request = FakeRequest(GET, routes.LockedEstatesController.get().url)
 
       val expectedJson = Json.parse(
         """
           |{
           |  "status": 404,
-          |  "message": "unable to locate an EstateClaim for the given requests internalId"
+          |  "message": "unable to locate an EstateLock for the given requests internalId"
           |}
         """.stripMargin
       )
 
-      when(service.get(any())).thenReturn(Future.successful(GetClaimNotFound))
+      when(service.get(any())).thenReturn(Future.successful(GetLockNotFound))
 
       val result = route(application, request).value
 
@@ -84,25 +84,25 @@ class ClaimedEstatesControllerSpec extends SpecBase {
   }
 
   "invoking POST /claim" - {
-    "must return CREATED and the stored EstateClaim if the service returns a StoreSuccessResponse" in {
-      val request = FakeRequest(POST, routes.ClaimedEstatesController.store().url)
+    "must return CREATED and the stored EstateLock if the service returns a StoreSuccessResponse" in {
+      val request = FakeRequest(POST, routes.LockedEstatesController.store().url)
         .withJsonBody(Json.obj(
           "utr" -> "0123456789",
           "managedByAgent" -> true
         ))
 
-      val estateClaim = EstateClaim(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
+      val estateLock = EstateLock(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
 
-      when(service.store(any(), any(), any(), any())).thenReturn(Future.successful(StoreSuccessResponse(estateClaim)))
+      when(service.store(any(), any(), any(), any())).thenReturn(Future.successful(StoreSuccessResponse(estateLock)))
 
       val result = route(application, request).value
 
       status(result) mustBe Status.CREATED
-      contentAsJson(result) mustBe estateClaim.toResponse
+      contentAsJson(result) mustBe estateLock.toResponse
     }
 
     "must return BAD_REQUEST and an error response if the service returns a StoreParsingErrorResponse" in {
-      val request = FakeRequest(POST, routes.ClaimedEstatesController.store().url)
+      val request = FakeRequest(POST, routes.LockedEstatesController.store().url)
         .withJsonBody(Json.obj(
           "some-incorrect-key" -> "some-incorrect-value"
         ))
@@ -111,7 +111,7 @@ class ClaimedEstatesControllerSpec extends SpecBase {
         """
           |{
           |  "status": 400,
-          |  "message": "Unable to parse request body into a EstateClaim"
+          |  "message": "Unable to parse request body into a EstateLock"
           |}
         """.stripMargin
       )
@@ -125,7 +125,7 @@ class ClaimedEstatesControllerSpec extends SpecBase {
     }
 
     "must return INTERNAL_SERVER_ERROR and an error response if the service returns a StoreErrorsResponse" in {
-      val request = FakeRequest(POST, routes.ClaimedEstatesController.store().url)
+      val request = FakeRequest(POST, routes.LockedEstatesController.store().url)
         .withJsonBody(Json.obj(
           "some-incorrect-key" -> "some-incorrect-value"
         ))

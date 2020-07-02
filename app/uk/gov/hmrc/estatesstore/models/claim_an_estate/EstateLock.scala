@@ -22,7 +22,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.estatesstore.formats.MongoDateTimeFormats
 
-case class EstateClaim(internalId: String, utr: String, managedByAgent: Boolean, estateLocked: Boolean = false, lastUpdated: LocalDateTime = LocalDateTime.now) {
+case class EstateLock(internalId: String, utr: String, managedByAgent: Boolean, estateLocked: Boolean = false, lastUpdated: LocalDateTime = LocalDateTime.now) {
   def toResponse: JsObject =
     Json.obj(
       "internalId" -> this.internalId,
@@ -32,24 +32,24 @@ case class EstateClaim(internalId: String, utr: String, managedByAgent: Boolean,
     )
 }
 
-object EstateClaim extends MongoDateTimeFormats {
-  implicit lazy val reads: Reads[EstateClaim] = {
+object EstateLock extends MongoDateTimeFormats {
+  implicit lazy val reads: Reads[EstateLock] = {
     (
         (__ \ "_id").read[String] and
         (__ \ "utr").read[String] and
         (__ \ "managedByAgent").read[Boolean] and
         (__ \ "estateLocked").read[Boolean] and
         (__ \ "lastUpdated").read(localDateTimeRead)
-    ) (EstateClaim.apply _)
+    ) (EstateLock.apply _)
   }
 
-  implicit lazy val writes: OWrites[EstateClaim] = {
+  implicit lazy val writes: OWrites[EstateLock] = {
     (
         (__ \ "_id").write[String] and
         (__ \ "utr").write[String] and
         (__ \ "managedByAgent").write[Boolean] and
         (__ \ "estateLocked").write[Boolean] and
         (__ \ "lastUpdated").write(localDateTimeWrite)
-    ) (unlift(EstateClaim.unapply))
+    ) (unlift(EstateLock.unapply))
   }
 }
