@@ -5,81 +5,68 @@ import java.time.format.DateTimeFormatter
 
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
+import play.api.Application
 import play.api.test.Helpers._
 import uk.gov.hmrc.estatesstore.MongoSuite
 import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateClaim
 
+import scala.concurrent.Future
 import scala.language.implicitConversions
 
-class ClaimedEstatesRepositorySpec extends FreeSpec with MustMatchers
+class ClaimedEstatesRepositorySpec extends AsyncFreeSpec with MustMatchers
   with ScalaFutures with OptionValues with Inside with MongoSuite with EitherValues {
 
   "a claimed estates repository" - {
 
     val internalId = "Int-328969d0-557e-4559-96ba-074d0597107e"
 
-    "must be able to store, retrieve and remove estates claims" in {
-
+    def assertMongoTest(application: Application)(block: Application => Assertion): Future[Assertion] =
       running(application) {
-
-        getConnection(application).map { connection =>
-
-          dropTheDatabase(connection)
-
-          val repository = application.injector.instanceOf[ClaimedEstatesRepository]
-
-          val lastUpdated = LocalDateTime.parse("2000-01-01 12:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-
-          val estateClaim = EstateClaim(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
-
-          val storedClaim = repository.store(estateClaim).futureValue.right.value
-
-          inside(storedClaim) {
-            case EstateClaim(id, utr, mba, tl, ldt) =>
-              id mustEqual internalId
-              utr mustEqual storedClaim.utr
-              mba mustEqual storedClaim.managedByAgent
-              tl mustEqual storedClaim.estateLocked
-              ldt mustEqual storedClaim.lastUpdated
-          }
-
-          repository.get(internalId).futureValue.value mustBe estateClaim
-
-          repository.remove(internalId).futureValue
-
-          repository.get(internalId).futureValue mustNot be(defined)
-
-          dropTheDatabase(connection)
-        }
-
+        for {
+          connection <- Future.fromTry(getConnection(application))
+          _ <- dropTheDatabase(connection)
+        } yield block(application)
       }
+
+    "must be able to store, retrieve and remove estates claims" in assertMongoTest(application) { app =>
+
+      val repository = app.injector.instanceOf[ClaimedEstatesRepository]
+
+      val lastUpdated = LocalDateTime.parse("2000-01-01 12:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+
+      val estateClaim = EstateClaim(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
+
+      val storedClaim = repository.store(estateClaim).futureValue.right.value
+
+      inside(storedClaim) {
+        case EstateClaim(id, utr, mba, tl, ldt) =>
+          id mustEqual internalId
+          utr mustEqual storedClaim.utr
+          mba mustEqual storedClaim.managedByAgent
+          tl mustEqual storedClaim.estateLocked
+          ldt mustEqual storedClaim.lastUpdated
+      }
+
+      repository.get(internalId).futureValue.value mustBe estateClaim
+
+      repository.remove(internalId).futureValue
+
+      repository.get(internalId).futureValue mustNot be(defined)
     }
 
-    "must be able to update a estate claim with the same auth id" in {
+    "must be able to update a estate claim with the same auth id" in assertMongoTest(application) { app =>
 
-      running(application) {
+      val repository = app.injector.instanceOf[ClaimedEstatesRepository]
 
-        getConnection(application).map { connection =>
+      val lastUpdated = LocalDateTime.parse("2000-01-01 12:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
 
-          dropTheDatabase(connection)
+      val estateClaim = EstateClaim(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
 
-          val repository = application.injector.instanceOf[ClaimedEstatesRepository]
+      repository.store(estateClaim).futureValue.right.value
 
-          val lastUpdated = LocalDateTime.parse("2000-01-01 12:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+      val updatedClaim = repository.store(estateClaim.copy(utr = "0987654321")).futureValue
 
-          val estateClaim = EstateClaim(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
-
-          repository.store(estateClaim).futureValue.right.value
-
-          val updatedClaim = repository.store(estateClaim.copy(utr = "0987654321")).futureValue
-
-          updatedClaim must be ('right)
-
-          dropTheDatabase(connection)
-        }
-
-      }
+      updatedClaim must be('right)
     }
-
   }
 }

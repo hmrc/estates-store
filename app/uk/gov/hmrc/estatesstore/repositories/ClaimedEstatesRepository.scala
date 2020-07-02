@@ -30,14 +30,11 @@ import uk.gov.hmrc.estatesstore.models.repository.StorageErrors
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
-class ClaimedEstatesRepository @Inject()(mongo: ReactiveMongoApi,
+class ClaimedEstatesRepository @Inject()(mongo: MongoDriver,
                                          config: Configuration)
                                         (implicit ec: ExecutionContext) {
 
-  private val collectionName: String = "claimAttempts"
-
-  private def collection: Future[JSONCollection] =
-    mongo.database.map(_.collection[JSONCollection](collectionName))
+  val collectionName: String = "claimAttempts"
 
   private val expireAfterSeconds = config.get[Int]("mongodb.expireAfterSeconds")
 
@@ -47,13 +44,16 @@ class ClaimedEstatesRepository @Inject()(mongo: ReactiveMongoApi,
     options = BSONDocument("expireAfterSeconds" -> expireAfterSeconds)
   )
 
-  val started: Future[Unit] =
-    collection.flatMap {
-      coll =>
-        for {
-          _ <- coll.indexesManager.ensure(lastUpdatedIndex)
-        } yield ()
-    }
+  private def collection: Future[JSONCollection] =
+    for {
+      _   <- ensureIndexes
+      res <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
+    } yield res
+
+  private lazy val ensureIndexes = for {
+    collection              <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
+    lastUpdateIndexCreated  <- collection.indexesManager.ensure(lastUpdatedIndex)
+  } yield lastUpdateIndexCreated
 
   def get(internalId: String): Future[Option[EstateClaim]] =
     collection.flatMap(_.find(Json.obj("_id" -> internalId), projection = None).one[EstateClaim])
