@@ -17,44 +17,83 @@
 package uk.gov.hmrc.estatesstore.controllers.actions
 
 import akka.stream.Materializer
-import org.scalatest.{FreeSpec, MustMatchers}
+import com.google.inject.Inject
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, BodyParsers, Results}
 import play.api.test.Helpers._
+import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.estatesstore.SpecBase
-import uk.gov.hmrc.estatesstore.connectors.{FakeAuthConnector, FakeFailingAuthConnector}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class IdentifierActionSpec extends FreeSpec with SpecBase with MustMatchers {
+class IdentifierActionSpec extends SpecBase {
 
-  implicit lazy val mtrlzr: Materializer = app.injector.instanceOf[Materializer]
+  implicit lazy val mtrlzr: Materializer = injector.instanceOf[Materializer]
+
+  implicit val ec = injector.instanceOf[ExecutionContext]
 
   class Harness(authAction: IdentifierAction) {
     def onSubmit(): Action[JsValue] = authAction.apply(BodyParsers.parse.json) { _ => Results.Ok }
   }
 
-  private def authRetrievals = Future.successful(Some("id"))
+  def bodyParsers: BodyParsers.Default = injector.instanceOf[BodyParsers.Default]
+
+  private def authRetrievals(affinityGroup: AffinityGroup) =
+    Future.successful(new ~(Some("id"), Some(affinityGroup)))
 
   private def insufficientAuthRetrievals =
-    Future.successful(None)
+    Future.successful(new ~(None, None))
+
+
+  private val agentAffinityGroup = AffinityGroup.Agent
+  private val orgAffinityGroup = AffinityGroup.Organisation
 
   "Auth Action must" - {
 
-    "allow user to continue" in {
-      val authAction = new AuthenticatedIdentifierAction(new FakeAuthConnector(authRetrievals), appConfig, bodyParsers)
-      val controller = new Harness(authAction)
-      val result = controller.onSubmit()(fakeRequest)
+    "when Agent user" - {
 
-      status(result) mustBe OK
+      "allow user to continue" in {
+        val authAction = new AuthenticatedIdentifierAction(new FakeAuthConnector(authRetrievals(agentAffinityGroup)), bodyParsers)
+        val controller = new Harness(authAction)
+        val result = controller.onSubmit()(fakeRequest)
+
+        status(result) mustBe OK
+      }
+
+    }
+
+    "when Organisation user" - {
+
+      "allow user to continue" - {
+        val authAction = new AuthenticatedIdentifierAction(new FakeAuthConnector(authRetrievals(orgAffinityGroup)), bodyParsers)
+        val controller = new Harness(authAction)
+        val result = controller.onSubmit()(fakeRequest)
+
+        status(result) mustBe OK
+      }
+
+    }
+
+    "when Individual user" - {
+
+      "be returned an unauthorized response" in {
+        val authAction = new AuthenticatedIdentifierAction(new FakeAuthConnector(authRetrievals(Individual)), bodyParsers)
+        val controller = new Harness(authAction)
+        val result = controller.onSubmit()(fakeRequest)
+
+        status(result) mustBe UNAUTHORIZED
+      }
+
     }
 
     "the user hasn't logged in" - {
 
       "be returned an unauthorized response" in {
-        val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new MissingBearerToken), appConfig, bodyParsers)
+        val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new MissingBearerToken), bodyParsers)
         val controller = new Harness(authAction)
         val result = controller.onSubmit()(fakeRequest)
 
@@ -65,7 +104,7 @@ class IdentifierActionSpec extends FreeSpec with SpecBase with MustMatchers {
     "the user's session has expired" - {
 
       "be returned an unauthorized response" in {
-        val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new BearerTokenExpired), appConfig, bodyParsers)
+        val authAction = new AuthenticatedIdentifierAction(new FakeFailingAuthConnector(new BearerTokenExpired), bodyParsers)
         val controller = new Harness(authAction)
         val result = controller.onSubmit()(fakeRequest)
 
@@ -76,7 +115,7 @@ class IdentifierActionSpec extends FreeSpec with SpecBase with MustMatchers {
     "handle insufficient retrievals" - {
 
       "by returning an unauthorized response" in {
-        val authAction = new AuthenticatedIdentifierAction(new FakeAuthConnector(insufficientAuthRetrievals), appConfig, bodyParsers)
+        val authAction = new AuthenticatedIdentifierAction(new FakeAuthConnector(insufficientAuthRetrievals), bodyParsers)
         val controller = new Harness(authAction)
         val result = controller.onSubmit()(fakeRequest)
 
@@ -86,5 +125,15 @@ class IdentifierActionSpec extends FreeSpec with SpecBase with MustMatchers {
   }
 }
 
+class FakeFailingAuthConnector @Inject()(exceptionToReturn: Throwable) extends AuthConnector {
+  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
+    Future.failed(exceptionToReturn)
+}
 
+
+class FakeAuthConnector(stubbedRetrievalResult: Future[_]) extends AuthConnector {
+  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] = {
+    stubbedRetrievalResult.map(_.asInstanceOf[A])
+  }
+}
 
