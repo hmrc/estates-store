@@ -17,7 +17,7 @@
 package uk.gov.hmrc.estatesstore.repositories
 
 import javax.inject.{Inject, Singleton}
-import play.api.Configuration
+import play.api.{Configuration, Logger}
 import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.indexes.{Index, IndexType}
@@ -50,10 +50,13 @@ class LockedEstatesRepository @Inject()(mongo: MongoDriver,
       res <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
     } yield res
 
-  private lazy val ensureIndexes = for {
+  private def ensureIndexes = for {
     collection              <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
     lastUpdateIndexCreated  <- collection.indexesManager.ensure(lastUpdatedIndex)
-  } yield lastUpdateIndexCreated
+  } yield {
+    Logger.info(s"estate-claims-last-updated-index index newly created $lastUpdateIndexCreated")
+    lastUpdateIndexCreated
+  }
 
   def get(internalId: String): Future[Option[EstateLock]] =
     collection.flatMap(_.find(Json.obj("_id" -> internalId), projection = None).one[EstateLock])
