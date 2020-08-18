@@ -1,3 +1,4 @@
+import play.sbt.routes.RoutesKeys
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
 import uk.gov.hmrc.SbtArtifactory
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
@@ -28,6 +29,9 @@ lazy val microservice = Project(appName, file("."))
   )
   .settings(
     PlayKeys.playDefaultPort := 8835
+  )
+  .settings(
+    RoutesKeys.routesImport := Seq.empty
   )
   .settings(
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
