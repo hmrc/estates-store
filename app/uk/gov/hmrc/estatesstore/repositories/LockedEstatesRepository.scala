@@ -17,9 +17,8 @@
 package uk.gov.hmrc.estatesstore.repositories
 
 import javax.inject.{Inject, Singleton}
-import play.api.{Configuration, Logger}
 import play.api.libs.json.Json
-import play.modules.reactivemongo.ReactiveMongoApi
+import play.api.{Configuration, Logger}
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter

@@ -18,7 +18,6 @@ package uk.gov.hmrc.estatesstore.repositories
 
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
-import play.modules.reactivemongo.ReactiveMongoApi
 
 import scala.concurrent.ExecutionContext
 
