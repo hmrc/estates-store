@@ -33,6 +33,8 @@ class LockedEstatesRepository @Inject()(mongo: MongoDriver,
                                         config: Configuration)
                                        (implicit ec: ExecutionContext) {
 
+  private val logger: Logger = Logger(getClass)
+  
   val collectionName: String = "claimAttempts"
 
   private val expireAfterSeconds = config.get[Int]("mongodb.expireAfterSeconds")
@@ -53,7 +55,7 @@ class LockedEstatesRepository @Inject()(mongo: MongoDriver,
     collection              <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
     lastUpdateIndexCreated  <- collection.indexesManager.ensure(lastUpdatedIndex)
   } yield {
-    Logger.info(s"estate-claims-last-updated-index index newly created $lastUpdateIndexCreated")
+    logger.info(s"[ensureIndexes] estate-claims-last-updated-index index newly created $lastUpdateIndexCreated")
     lastUpdateIndexCreated
   }
 

@@ -93,7 +93,7 @@ class LockedEstatesControllerSpec extends SpecBase {
 
       val estateLock = EstateLock(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
 
-      when(service.store(any(), any(), any(), any())).thenReturn(Future.successful(StoreSuccessResponse(estateLock)))
+      when(service.store(any(), any(), any(), any())(any())).thenReturn(Future.successful(StoreSuccessResponse(estateLock)))
 
       val result = route(application, request).value
 
@@ -116,7 +116,7 @@ class LockedEstatesControllerSpec extends SpecBase {
         """.stripMargin
       )
 
-      when(service.store(any(), any(), any(), any())).thenReturn(Future.successful(StoreParsingError))
+      when(service.store(any(), any(), any(), any())(any())).thenReturn(Future.successful(StoreParsingError))
 
       val result = route(application, request).value
 
@@ -155,7 +155,7 @@ class LockedEstatesControllerSpec extends SpecBase {
           |}
         """.stripMargin
       )
-      when(service.store(any(), any(), any(), any())).thenReturn(Future.successful(StoreErrorsResponse(storageErrors)))
+      when(service.store(any(), any(), any(), any())(any())).thenReturn(Future.successful(StoreErrorsResponse(storageErrors)))
 
       val result = route(application, request).value
 

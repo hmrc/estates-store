@@ -17,15 +17,20 @@
 package uk.gov.hmrc.estatesstore.services
 
 import javax.inject.{Inject, Singleton}
+import play.api.Logger
 import uk.gov.hmrc.estatesstore.models.claim_an_estate.EstateLock
-import uk.gov.hmrc.estatesstore.models.claim_an_estate.responses.{LockedEstateResponse, GetLockFound, GetLockNotFound, StoreErrorsResponse, StoreParsingError, StoreSuccessResponse}
+import uk.gov.hmrc.estatesstore.models.claim_an_estate.responses.{GetLockFound, GetLockNotFound, LockedEstateResponse, StoreErrorsResponse, StoreParsingError, StoreSuccessResponse}
 import uk.gov.hmrc.estatesstore.repositories.LockedEstatesRepository
+import uk.gov.hmrc.http.HeaderCarrier
+import utils.Session
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Singleton()
 class LockedEstatesService @Inject()(private val lockedEstatesRepository: LockedEstatesRepository)  {
+
+  private val logger: Logger = Logger(getClass)
 
   def get(internalId: String): Future[LockedEstateResponse] = {
     lockedEstatesRepository.get(internalId) map {
@@ -34,11 +39,15 @@ class LockedEstatesService @Inject()(private val lockedEstatesRepository: Locked
     }
   }
 
-  def store(internalId: String, maybeUtr: Option[String], maybeManagedByAgent: Option[Boolean], maybeEstateLocked: Option[Boolean]): Future[LockedEstateResponse] = {
+  def store(internalId: String, maybeUtr: Option[String], maybeManagedByAgent: Option[Boolean], maybeEstateLocked: Option[Boolean])(implicit hc: HeaderCarrier): Future[LockedEstateResponse] = {
 
     val estateLock = (maybeUtr, maybeManagedByAgent, maybeEstateLocked) match {
-      case (Some(utr), Some(managedByAgent), None) => Some(EstateLock(internalId, utr, managedByAgent))
-      case (Some(utr), Some(managedByAgent), Some(maybeEstateLocked)) => Some(EstateLock(internalId, utr, managedByAgent, maybeEstateLocked))
+      case (Some(utr), Some(managedByAgent), None) =>
+        logger.info(s"[store][Session ID: ${Session.id(hc)}] Estate is not locked")
+        Some(EstateLock(internalId, utr, managedByAgent))
+      case (Some(utr), Some(managedByAgent), Some(maybeEstateLocked)) =>
+        if (maybeEstateLocked) {logger.info(s"[store][Session ID: ${Session.id(hc)}] Estate is locked")}
+        Some(EstateLock(internalId, utr, managedByAgent, maybeEstateLocked))
       case _ => None
     }
 
