@@ -8,7 +8,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.MongoConnection
-import uk.gov.hmrc.estatesstore.repositories.{EstatesMongoDriver, RegisterTasksRepository, TasksRepository}
+import repositories.{EstatesMongoDriver, RegisterTasksRepository, TasksRepository}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

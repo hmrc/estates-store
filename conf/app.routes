@@ -1,13 +1,13 @@
 # microservice specific routes
 
-GET     /register/tasks                                uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.get()
+GET     /register/tasks                                controllers.RegisterTaskListController.get()
 
-POST    /register/tasks                                uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setDefaultState()
-POST    /register/tasks/estate-details                 uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setDetailsComplete()
-POST    /register/tasks/personal-representative        uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setPersonalRepresentativeComplete()
-POST    /register/tasks/deceased                       uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setDeceasedComplete()
-POST    /register/tasks/tax-liability                  uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.setTaxLiabilityComplete()
-POST    /register/tasks/tax-liability/reset            uk.gov.hmrc.estatesstore.controllers.RegisterTaskListController.resetTaxLiability()
+POST    /register/tasks                                controllers.RegisterTaskListController.setDefaultState()
+POST    /register/tasks/estate-details                 controllers.RegisterTaskListController.setDetailsComplete()
+POST    /register/tasks/personal-representative        controllers.RegisterTaskListController.setPersonalRepresentativeComplete()
+POST    /register/tasks/deceased                       controllers.RegisterTaskListController.setDeceasedComplete()
+POST    /register/tasks/tax-liability                  controllers.RegisterTaskListController.setTaxLiabilityComplete()
+POST    /register/tasks/tax-liability/reset            controllers.RegisterTaskListController.resetTaxLiability()
 
-GET     /lock                                         uk.gov.hmrc.estatesstore.controllers.LockedEstatesController.get()
-POST    /lock                                         uk.gov.hmrc.estatesstore.controllers.LockedEstatesController.store()
+GET     /lock                                          controllers.LockedEstatesController.get()
+POST    /lock                                          controllers.LockedEstatesController.store()

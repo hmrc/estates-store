@@ -50,7 +50,7 @@
     <logger name="models" level="INFO"/>
     <logger name="repositories" level="INFO"/>
 
-    <root level="INFO">
+    <root level="WARN">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
     </root>
