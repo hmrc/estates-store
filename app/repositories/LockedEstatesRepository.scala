@@ -25,6 +25,7 @@ import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
 import reactivemongo.play.json.collection.JSONCollection
 import models.claim_an_estate.EstateLock
 import models.repository.StorageErrors
+import reactivemongo.api.WriteConcern
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -63,7 +64,17 @@ class LockedEstatesRepository @Inject()(mongo: MongoDriver,
     collection.flatMap(_.find(Json.obj("_id" -> internalId), projection = None).one[EstateLock])
 
   def remove(internalId: String): Future[Option[EstateLock]] =
-    collection.flatMap(_.findAndRemove(Json.obj("_id" -> internalId)).map(_.result[EstateLock]))
+    collection.flatMap(
+      _.findAndRemove(
+        Json.obj("_id" -> internalId),
+        None,
+        None,
+        WriteConcern.Default,
+        None,
+        None,
+        Seq.empty
+      ).map(_.result[EstateLock])
+    )
 
   def store(estateLock: EstateLock): Future[Either[StorageErrors, EstateLock]] = {
 

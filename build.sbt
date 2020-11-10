@@ -20,24 +20,18 @@ lazy val microservice = Project(appName, file("."))
   .enablePlugins(play.sbt.PlayScala, SbtAutoBuildPlugin, SbtGitVersioning, SbtDistributablesPlugin, SbtArtifactory)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
-    scalaVersion := "2.12.10"
-  )
-  .settings(
+    scalaVersion := "2.12.12",
+    SilencerSettings(),
     majorVersion                     := 0,
     libraryDependencies              ++= AppDependencies.compile ++ AppDependencies.test,
     dependencyOverrides              ++= AppDependencies.overrides,
-  )
-  .settings(
-    PlayKeys.playDefaultPort := 8835
-  )
-  .settings(
-    RoutesKeys.routesImport := Seq.empty
-  )
-  .settings(
-    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
-  )
-  .settings(publishingSettings: _*)
-  .settings(scoverageSettings: _*)
+    PlayKeys.playDefaultPort := 8835,
+    RoutesKeys.routesImport := Seq.empty,
+    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
+    publishingSettings,
+    scoverageSettings)
   .configs(IntegrationTest)
-  .settings(integrationTestSettings(): _*)
-  .settings(resolvers += Resolver.jcenterRepo)
+  .settings(
+    integrationTestSettings(),
+    resolvers += Resolver.jcenterRepo
+  )

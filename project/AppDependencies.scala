@@ -8,17 +8,6 @@ object AppDependencies {
     "uk.gov.hmrc"             %% "bootstrap-play-26"        % "1.14.0"
   )
 
-  val akkaVersion = "2.5.23"
-  val akkaHttpVersion = "10.0.15"
-
-  val overrides: Seq[ModuleID] = Seq(
-    "com.typesafe.akka" %% "akka-stream" % akkaVersion,
-    "com.typesafe.akka" %% "akka-protobuf" % akkaVersion,
-    "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
-    "com.typesafe.akka" %% "akka-actor" % akkaVersion,
-    "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion
-  )
-
   val test = Seq(
     "uk.gov.hmrc"             %% "bootstrap-play-26"        % "1.14.0" % Test classifier "tests",
     "org.scalatest"           %% "scalatest"                % "3.0.8"                 % "test",
@@ -29,4 +18,14 @@ object AppDependencies {
     "org.mockito"             %  "mockito-all"              % "1.10.19"               % "test, it"
   )
 
+  val akkaVersion = "2.5.23"
+  val akkaHttpVersion = "10.0.15"
+
+  val overrides: Seq[ModuleID] = Seq(
+    "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+    "com.typesafe.akka" %% "akka-protobuf" % akkaVersion,
+    "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
+    "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+    "com.typesafe.akka" %% "akka-http-core" % akkaHttpVersion
+  )
 }
