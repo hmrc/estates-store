@@ -20,7 +20,7 @@ import akka.stream.Materializer
 import base.SpecBase
 import com.google.inject.Inject
 import play.api.libs.json.JsValue
-import play.api.mvc.{Action, BodyParsers, Results}
+import play.api.mvc.{Action, BodyParsers, PlayBodyParsers, Results}
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.auth.core._
@@ -34,10 +34,12 @@ class IdentifierActionSpec extends SpecBase {
 
   implicit lazy val mtrlzr: Materializer = injector.instanceOf[Materializer]
 
-  implicit val ec = injector.instanceOf[ExecutionContext]
+  implicit val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
+
+  val playBodyParsers: PlayBodyParsers = injector.instanceOf[PlayBodyParsers]
 
   class Harness(authAction: IdentifierAction) {
-    def onSubmit(): Action[JsValue] = authAction.apply(BodyParsers.parse.json) { _ => Results.Ok }
+    def onSubmit(): Action[JsValue] = authAction.apply(playBodyParsers.json) { _ => Results.Ok }
   }
 
   def bodyParsers: BodyParsers.Default = injector.instanceOf[BodyParsers.Default]

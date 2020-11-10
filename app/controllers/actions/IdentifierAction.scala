@@ -17,7 +17,7 @@
 package controllers.actions
 
 import com.google.inject.Inject
-import play.api.Logger
+import play.api.Logging
 import play.api.mvc.Results._
 import play.api.mvc.{Request, Result, _}
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
@@ -34,10 +34,8 @@ import scala.concurrent.{ExecutionContext, Future}
 class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthConnector,
                                               val parser: BodyParsers.Default)
                                              (implicit val executionContext: ExecutionContext)
-  extends IdentifierAction with AuthorisedFunctions {
+  extends IdentifierAction with AuthorisedFunctions with Logging {
 
-  private val logger: Logger = Logger(getClass)
-  
   def invokeBlock[A](request: Request[A],
                      block: IdentifierRequest[A] => Future[Result]) : Future[Result] = {
 

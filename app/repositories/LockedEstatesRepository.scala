@@ -18,23 +18,22 @@ package repositories
 
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
-import play.api.{Configuration, Logger}
+import play.api.{Configuration, Logging}
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
 import reactivemongo.play.json.collection.JSONCollection
 import models.claim_an_estate.EstateLock
 import models.repository.StorageErrors
+import reactivemongo.api.WriteConcern
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
 class LockedEstatesRepository @Inject()(mongo: MongoDriver,
                                         config: Configuration)
-                                       (implicit ec: ExecutionContext) {
+                                       (implicit ec: ExecutionContext) extends Logging{
 
-  private val logger: Logger = Logger(getClass)
-  
   val collectionName: String = "claimAttempts"
 
   private val expireAfterSeconds = config.get[Int]("mongodb.expireAfterSeconds")
@@ -63,7 +62,17 @@ class LockedEstatesRepository @Inject()(mongo: MongoDriver,
     collection.flatMap(_.find(Json.obj("_id" -> internalId), projection = None).one[EstateLock])
 
   def remove(internalId: String): Future[Option[EstateLock]] =
-    collection.flatMap(_.findAndRemove(Json.obj("_id" -> internalId)).map(_.result[EstateLock]))
+    collection.flatMap(
+      _.findAndRemove(
+        Json.obj("_id" -> internalId),
+        None,
+        None,
+        WriteConcern.Default,
+        None,
+        None,
+        Seq.empty
+      ).map(_.result[EstateLock])
+    )
 
   def store(estateLock: EstateLock): Future[Either[StorageErrors, EstateLock]] = {
 

@@ -17,7 +17,7 @@
 package services
 
 import javax.inject.{Inject, Singleton}
-import play.api.Logger
+import play.api.Logging
 import models.claim_an_estate.EstateLock
 import models.claim_an_estate.responses.{GetLockFound, GetLockNotFound, LockedEstateResponse, StoreErrorsResponse, StoreParsingError, StoreSuccessResponse}
 import repositories.LockedEstatesRepository
@@ -28,9 +28,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 @Singleton()
-class LockedEstatesService @Inject()(private val lockedEstatesRepository: LockedEstatesRepository)  {
-
-  private val logger: Logger = Logger(getClass)
+class LockedEstatesService @Inject()(private val lockedEstatesRepository: LockedEstatesRepository) extends Logging {
 
   def get(internalId: String): Future[LockedEstateResponse] = {
     lockedEstatesRepository.get(internalId) map {

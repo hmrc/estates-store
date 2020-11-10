@@ -25,6 +25,7 @@ import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
 import reactivemongo.play.json.collection.JSONCollection
 import formats.MongoDateTimeFormats
+import reactivemongo.api.WriteConcern
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -62,7 +63,18 @@ abstract class TasksRepository(mongo: MongoDriver, config: Configuration)
     )
 
     collection.flatMap(
-        _.findAndUpdate(selector, modifier, fetchNewObject = true)
+        _.findAndUpdate(
+          selector = selector,
+          update = modifier,
+          fetchNewObject = true,
+          upsert = false,
+          sort = None,
+          fields = None,
+          bypassDocumentValidation = false,
+          writeConcern = WriteConcern.Default,
+          maxTime = None,
+          collation = None,
+          arrayFilters = Nil)
         .map(_.result[T])
       )
   }
