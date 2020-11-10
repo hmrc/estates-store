@@ -18,7 +18,7 @@ package repositories
 
 import javax.inject.{Inject, Singleton}
 import play.api.libs.json.Json
-import play.api.{Configuration, Logger}
+import play.api.{Configuration, Logging}
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.BSONDocument
 import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
@@ -32,10 +32,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton()
 class LockedEstatesRepository @Inject()(mongo: MongoDriver,
                                         config: Configuration)
-                                       (implicit ec: ExecutionContext) {
+                                       (implicit ec: ExecutionContext) extends Logging{
 
-  private val logger: Logger = Logger(getClass)
-  
   val collectionName: String = "claimAttempts"
 
   private val expireAfterSeconds = config.get[Int]("mongodb.expireAfterSeconds")
