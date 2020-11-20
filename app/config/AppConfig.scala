@@ -17,11 +17,12 @@
 package config
 
 import javax.inject.{Inject, Singleton}
-import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
 class AppConfig @Inject()(config: Configuration, servicesConfig: ServicesConfig) {
+
+  def getFeature(flagName: FeatureFlagName): Option[Boolean] =
+    config.getOptional[Boolean](s"features.${flagName.asString}")
 
   val authBaseUrl: String = servicesConfig.baseUrl("auth")
 
