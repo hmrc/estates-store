@@ -7,13 +7,14 @@ import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import play.api.Application
 import play.api.test.Helpers._
-import MongoSuite
 import models.claim_an_estate.EstateLock
+import uk.gov.hmrc.estatesstore.MongoSuite
 
 import scala.concurrent.Future
 import scala.language.implicitConversions
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class LockedEstatesRepositorySpec extends AsyncFreeSpec with MustMatchers
+class LockedEstatesRepositorySpec extends FreeSpec with MustMatchers
   with ScalaFutures with OptionValues with Inside with MongoSuite with EitherValues {
 
   "a claimed estates repository" - {

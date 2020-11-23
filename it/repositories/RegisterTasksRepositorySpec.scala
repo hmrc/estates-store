@@ -4,14 +4,15 @@ import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import play.api.Application
 import play.api.test.Helpers._
-import MongoSuite
 import models.register.{TaskCache, Tasks}
+import uk.gov.hmrc.estatesstore.MongoSuite
 
 import scala.concurrent.Future
 import scala.language.implicitConversions
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class RegisterTasksRepositorySpec extends AsyncFreeSpec with MustMatchers
-  with ScalaFutures with OptionValues with MongoSuite {
+class RegisterTasksRepositorySpec extends FreeSpec with MustMatchers
+  with ScalaFutures with OptionValues with Inside with MongoSuite with EitherValues {
 
   val internalId = "Int-328969d0-557e-4559-96ba-074d0597107e"
 

@@ -1,20 +1,16 @@
 package uk.gov.hmrc.estatesstore
 
-import org.scalatest.TestSuite
-import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Application
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.modules.reactivemongo.ReactiveMongoApi
 import reactivemongo.api.MongoConnection
-import repositories.{EstatesMongoDriver, RegisterTasksRepository, TasksRepository}
+import repositories.{RegisterTasksRepository, TasksRepository}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait MongoSuite extends ScalaFutures {
-
-  implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(30, Seconds), interval = Span(500, Millis))
+trait MongoSuite extends ScalaFutures with IntegrationPatience {
 
   // Database boilerplate
   private val connectionString = "mongodb://localhost:27017/estates-store-integration"

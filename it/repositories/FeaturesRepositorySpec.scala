@@ -1,21 +1,17 @@
 package repositories
 
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatest.{FreeSpec, MustMatchers, OptionValues}
-import play.api.test.Helpers._
 import models.FeatureFlag.Enabled
 import models.FeatureFlagName.MLD5
-import suite.MongoSuite
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.{EitherValues, FreeSpec, Inside, MustMatchers, OptionValues}
+import play.api.test.Helpers._
+import uk.gov.hmrc.estatesstore.MongoSuite
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class FeaturesRepositorySpec
-  extends FreeSpec
-    with MustMatchers
-    with ScalaFutures
-    with OptionValues
-    with MongoSuite
-    with IntegrationPatience {
+  extends FreeSpec with MustMatchers
+    with ScalaFutures with OptionValues with Inside with MongoSuite with EitherValues {
 
   "Features Repository" - {
 
