@@ -1,4 +1,7 @@
-
+import play.sbt.routes.RoutesKeys
+import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
+import uk.gov.hmrc.SbtArtifactory
+import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "estates-store"
 
@@ -23,12 +26,28 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies              ++= AppDependencies.compile ++ AppDependencies.test,
     dependencyOverrides              ++= AppDependencies.overrides,
     PlayKeys.playDefaultPort := 8835,
-    RoutesKeys.routesImport += "models.FeatureFlagName",
+    RoutesKeys.routesImport := Seq("models.FeatureFlagName"),
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     publishingSettings,
     scoverageSettings)
   .configs(IntegrationTest)
   .settings(
+    inConfig(IntegrationTest)(itSettings),
     integrationTestSettings(),
     resolvers += Resolver.jcenterRepo
   )
+
+lazy val itSettings = Defaults.itSettings ++ Seq(
+  unmanagedSourceDirectories   := Seq(
+    baseDirectory.value / "it"
+  ),
+  unmanagedResourceDirectories := Seq(
+    baseDirectory.value / "it" / "resources"
+  ),
+  parallelExecution            := false,
+  fork                         := true,
+  javaOptions                  ++= Seq(
+    "-Dconfig.resource=it.application.conf"
+  )
+)
+
