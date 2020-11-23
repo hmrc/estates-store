@@ -18,12 +18,13 @@ package config
 
 import javax.inject.{Inject, Singleton}
 import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import models.FeatureFlagName
 
 @Singleton
-class AppConfig @Inject()(config: Configuration, servicesConfig: ServicesConfig) {
+class AppConfig @Inject()(config: Configuration) {
 
-  val authBaseUrl: String = servicesConfig.baseUrl("auth")
+  def getFeature(flagName: FeatureFlagName): Option[Boolean] =
+    config.getOptional[Boolean](s"features.${flagName.asString}")
 
   val auditingEnabled: Boolean = config.get[Boolean]("auditing.enabled")
   val graphiteHost: String     = config.get[String]("microservice.metrics.graphite.host")
