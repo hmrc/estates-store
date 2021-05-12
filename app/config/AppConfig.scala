@@ -23,8 +23,10 @@ import models.FeatureFlagName
 @Singleton
 class AppConfig @Inject()(config: Configuration) {
 
-  def getFeature(flagName: FeatureFlagName): Option[Boolean] =
-    config.getOptional[Boolean](s"features.${flagName.asString}")
+  def getFeature(flagName: FeatureFlagName): Option[Boolean] = {
+    if (flagName.asString == "5mld") {Some(true)}
+    else {config.getOptional[Boolean](s"features.${flagName.asString}")}
+  }
 
   val auditingEnabled: Boolean = config.get[Boolean]("auditing.enabled")
   val graphiteHost: String     = config.get[String]("microservice.metrics.graphite.host")
