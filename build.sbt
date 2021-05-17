@@ -26,7 +26,7 @@ lazy val microservice = Project(appName, file("."))
     libraryDependencies              ++= AppDependencies.compile ++ AppDependencies.test,
     dependencyOverrides              ++= AppDependencies.overrides,
     PlayKeys.playDefaultPort := 8835,
-    RoutesKeys.routesImport := Seq("models.FeatureFlagName"),
+    RoutesKeys.routesImport := Seq.empty,
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     publishingSettings,
     scoverageSettings)
