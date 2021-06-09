@@ -5,7 +5,7 @@ object AppDependencies {
 
   val compile = Seq(
     "org.reactivemongo"       %% "play2-reactivemongo"        % "0.18.8-play27",
-    "uk.gov.hmrc"             %% "bootstrap-backend-play-27"  % "4.3.0"
+    "uk.gov.hmrc"             %% "bootstrap-backend-play-27"  % "5.3.0"
   )
 
   val test = Seq(
@@ -13,7 +13,7 @@ object AppDependencies {
     "com.typesafe.play"       %% "play-test"                  % current                 % "test",
     "org.pegdown"             %  "pegdown"                    % "1.6.0"                 % "test, it",
     "org.scalatestplus.play"  %% "scalatestplus-play"         % "4.0.3"                 % "test, it",
-    "com.github.tomakehurst"  %  "wiremock-standalone"        % "2.25.1"                % "test, it",
+    "com.github.tomakehurst"  %  "wiremock-standalone"        % "2.27.2"                % "test, it",
     "org.mockito"             %  "mockito-all"                % "1.10.19"               % "test, it"
   )
 
