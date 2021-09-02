@@ -47,11 +47,11 @@ class LockedEstatesRepository @Inject()(mongo: MongoDriver,
   private def collection: Future[JSONCollection] =
     for {
       _   <- ensureIndexes
-      res <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
+      res <- Future.successful(mongo.api.collection[JSONCollection](collectionName))
     } yield res
 
   private def ensureIndexes = for {
-    collection              <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
+    collection              <- Future.successful(mongo.api.collection[JSONCollection](collectionName))
     lastUpdateIndexCreated  <- collection.indexesManager.ensure(lastUpdatedIndex)
   } yield {
     logger.info(s"[ensureIndexes] estate-claims-last-updated-index index newly created $lastUpdateIndexCreated")

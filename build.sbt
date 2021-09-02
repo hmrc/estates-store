@@ -4,6 +4,8 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "estates-store"
 
+lazy val IntegrationTest = config("it") extend(Test)
+
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
@@ -29,12 +31,22 @@ lazy val microservice = Project(appName, file("."))
     evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     publishingSettings,
     scoverageSettings)
+  .settings(inConfig(Test)(testSettings))
   .configs(IntegrationTest)
+  .settings(inConfig(IntegrationTest)(itSettings): _*)
   .settings(
     inConfig(IntegrationTest)(itSettings),
     integrationTestSettings(),
     resolvers += Resolver.jcenterRepo
   )
+
+lazy val testSettings: Seq[Def.Setting[_]] = Seq(
+  fork        := true,
+  javaOptions ++= Seq(
+    "-Dconfig.resource=test.application.conf",
+    "-Dlogger.resource=logback-test.xml"
+  )
+)
 
 lazy val itSettings = Defaults.itSettings ++ Seq(
   unmanagedSourceDirectories   := Seq(
@@ -44,9 +56,6 @@ lazy val itSettings = Defaults.itSettings ++ Seq(
     baseDirectory.value / "it" / "resources"
   ),
   parallelExecution            := false,
-  fork                         := true,
-  javaOptions                  ++= Seq(
-    "-Dconfig.resource=it.application.conf"
-  )
+  fork                         := true
 )
 

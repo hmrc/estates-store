@@ -17,12 +17,12 @@
 package models
 
 import java.time.LocalDateTime
-
-import org.scalatest.{FreeSpec, MustMatchers}
 import play.api.libs.json.Json
 import models.register.{TaskCache, Tasks}
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 
-class TaskCacheSpec extends FreeSpec with MustMatchers {
+class TaskCacheSpec extends AnyFreeSpec with Matchers {
 
   "task must" - {
 

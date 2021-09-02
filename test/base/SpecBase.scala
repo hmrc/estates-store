@@ -36,20 +36,22 @@ import config.AppConfig
 import controllers.actions.{FakeIdentifierAction, IdentifierAction}
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatestplus.mockito.MockitoSugar
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.MimeTypes
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.inject.{Injector, bind}
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.PlayBodyParsers
 import play.api.test.FakeRequest
-import play.api.test.Helpers.CONTENT_TYPE
+import play.api.test.Helpers.{CONTENT_TYPE, stubControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 
-class SpecBase extends FreeSpec
+class SpecBase extends AnyFreeSpec
   with GuiceOneAppPerSuite
-  with MustMatchers
+  with Matchers
   with MockitoSugar
   with OptionValues
   with EitherValues
@@ -82,7 +84,7 @@ class SpecBase extends FreeSpec
         ): _*
       )
       .overrides(
-        bind[IdentifierAction].toInstance(new FakeIdentifierAction(injectedParsers))
+        bind[IdentifierAction].toInstance(new FakeIdentifierAction(stubControllerComponents().parsers.default))
       )
   }
 

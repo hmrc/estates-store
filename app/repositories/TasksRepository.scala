@@ -45,11 +45,11 @@ abstract class TasksRepository(mongo: MongoDriver, config: Configuration)
   private def collection: Future[JSONCollection] =
     for {
       _   <- ensureIndexes
-      res <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
+      res <- Future.successful(mongo.api.collection[JSONCollection](collectionName))
     } yield res
 
   private lazy val ensureIndexes = for {
-      collection              <- mongo.api.database.map(_.collection[JSONCollection](collectionName))
+      collection              <- Future.successful(mongo.api.collection[JSONCollection](collectionName))
       lastUpdateIndexCreated  <- collection.indexesManager.ensure(lastUpdatedIndex)
   } yield lastUpdateIndexCreated
 
