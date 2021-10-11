@@ -9,9 +9,9 @@ lazy val IntegrationTest = config("it") extend(Test)
 lazy val scoverageSettings = {
   import scoverage.ScoverageKeys
   Seq(
-    ScoverageKeys.coverageExcludedPackages := "<empty>;.*Reverse.*;app.Routes.*;prod.*;testOnlyDoNotUseInProd.*;testOnlyDoNotUseInAppConf.*;" +
-      "uk.gov.hmrc.BuildInfo;app.*;prod.*;config.*;.*AppConfig;.*Repository;",
-    ScoverageKeys.coverageMinimum := 70,
+    ScoverageKeys.coverageExcludedPackages := "<empty>;.*Reverse.*;.*Routes.*;.*filters.*;.*handlers.*;.*components.*;.*Session.*;" +
+      "prod.*;testOnlyDoNotUseInProd.*;testOnlyDoNotUseInAppConf.*;uk.gov.hmrc.BuildInfo;app.*;prod.*;config.*;.*AppConfig;.*repositories.*",
+    ScoverageKeys.coverageMinimum := 80,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )
