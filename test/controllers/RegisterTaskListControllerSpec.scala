@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import models.register.Operations.{UpdateDetails, UpdateTaxLiability}
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import play.api.Application
@@ -79,6 +80,41 @@ class RegisterTaskListControllerSpec extends SpecBase {
       status(result) mustBe Status.OK
       contentAsJson(result) mustBe Json.toJson(tasks)
       verify(service).set("id", tasks)
+
+    }
+    "must return BAD_REQUEST for invalid JSON" in {
+
+      val request = FakeRequest(POST, routes.RegisterTaskListController.setDefaultState().url).withBody(Json.obj())
+
+      val result = route(application, request).value
+
+      status(result) mustBe Status.BAD_REQUEST
+    }
+
+  }
+
+  "invoking POST /register/tasks/tax-liability/reset" - {
+
+    "must return OK and the tasks with Tax Liability reset to false" in {
+      val tasks = Tasks(
+        details = true,
+        personalRepresentative = false,
+        deceased = false,
+        yearsOfTaxLiability = true
+      )
+
+      val updatedTasks = tasks.copy(yearsOfTaxLiability = false)
+
+      val request = FakeRequest(POST, routes.RegisterTaskListController.resetTaxLiability().url).withBody(Json.toJson(tasks))
+
+      when(service.get(any())).thenReturn(Future.successful(tasks))
+      when(service.reset(any(), any(), any())).thenReturn(Future.successful(updatedTasks))
+
+      val result = route(application, request).value
+
+      status(result) mustBe Status.OK
+      contentAsJson(result) mustBe Json.toJson(updatedTasks)
+      verify(service).reset("id", UpdateTaxLiability, tasks)
 
     }
     "must return BAD_REQUEST for invalid JSON" in {
