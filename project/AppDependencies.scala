@@ -4,19 +4,20 @@ import sbt._
 object AppDependencies {
 
   val compile = Seq(
-    "uk.gov.hmrc"               %% "simple-reactivemongo"       % "8.0.0-play-28",
-    "uk.gov.hmrc"             %% "bootstrap-backend-play-28"  % "5.10.0"
+    "uk.gov.hmrc"               %% "simple-reactivemongo"       % "8.1.0-play-28",
+    "uk.gov.hmrc"             %% "bootstrap-backend-play-28"  % "5.24.0"
   )
 
   val test = Seq(
-    "org.scalatest"           %% "scalatest"                  % "3.2.9"                 % "test",
+    "org.scalatest"           %% "scalatest"                  % "3.2.12"                 % "test",
     "com.typesafe.play"       %% "play-test"                  % current                 % "test",
-    "org.pegdown"             %  "pegdown"                    % "1.6.0"                 % "test, it",
     "org.scalatestplus.play"  %% "scalatestplus-play"         % "5.1.0"                 % "test, it",
     "org.scalatestplus"       %% "scalatestplus-mockito"      % "1.0.0-M2"              % "test",
     "com.github.tomakehurst"  %  "wiremock-standalone"        % "2.27.2"                % "test, it",
-    "org.mockito"             %  "mockito-all"                % "1.10.19"               % "test, it",
-    "com.vladsch.flexmark"    % "flexmark-all"                % "0.35.10"               % "test, it"
+    "org.mockito"                 %  "mockito-all"              % "1.10.19"   % "test, it",
+    "org.mockito"                 %  "mockito-core"             % "4.6.1"     % "test, it",
+    "org.scalatestplus"           %% "mockito-3-12"             % "3.2.10.0"   % "test, it",
+    "com.vladsch.flexmark"    % "flexmark-all"                % "0.62.2"               % "test, it"
   )
 
   val akkaVersion = "2.6.7"

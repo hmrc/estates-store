@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -144,13 +144,13 @@ class LockedEstatesControllerSpec extends SpecBase {
           |  "status": 500,
           |  "message": "unable to store to estates store",
           |  "errors": [
-          |    { "index 1": [{ "code": 100, "message": "another mongo write error!" }] },
-          |    {
+          |  {
           |      "index 0": [
           |        { "code": 100, "message": "some mongo write error!" },
           |        { "code": 200, "message": "a different mongo write error!" }
           |      ]
-          |    }
+          |    },
+          |    { "index 1": [{ "code": 100, "message": "another mongo write error!" }] }
           |  ]
           |}
         """.stripMargin
