@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,15 +39,15 @@ class StorageErrorsSpec extends SpecBase {
       val expectedJson = Json.parse(
         """
           |[
-          |  { "index 2": [{ "code": 20, "message": "a different mongo write error!" }] },
+          |  { "index 0": [{ "code": 50, "message": "some mongo write error!" }] },
           |  { "index 1": [{ "code": 100, "message": "another mongo write error!" }] },
+          |  { "index 2": [{ "code": 20, "message": "a different mongo write error!" }] },
           |  {
           |    "index 3": [
           |      { "code": 100, "message": "also this write error!" },
           |      { "code": 200, "message": "a second write error on index 3!" }
           |    ]
-          |  },
-          |  { "index 0": [{ "code": 50, "message": "some mongo write error!" }] }
+          |  }
           |]
         """.stripMargin
       )

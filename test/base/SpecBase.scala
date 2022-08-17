@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import play.api.mvc.PlayBodyParsers
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{CONTENT_TYPE, stubControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
+
 
 class SpecBase extends AnyFreeSpec
   with GuiceOneAppPerSuite
