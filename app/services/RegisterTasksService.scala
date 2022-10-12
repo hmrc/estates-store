@@ -16,18 +16,17 @@
 
 package services
 
-import javax.inject.Inject
-import config.annotations.Register
-import models.register.Operations.{UpdateDeceased, UpdateDetails, UpdateOperation, UpdatePersonalRepresentative, UpdateTaxLiability}
+import models.register.Operations._
 import models.register.{TaskCache, Tasks}
-import repositories.TasksRepository
+import repositories.EstateRegisterTasksRepository
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RegisterTasksService @Inject()(@Register tasksRepository: TasksRepository)(implicit ec: ExecutionContext) {
+class RegisterTasksService @Inject()(tasksRepository: EstateRegisterTasksRepository)(implicit ec: ExecutionContext) {
 
   def get(internalId: String): Future[Tasks] = {
-    tasksRepository.get[TaskCache](internalId) map {
+    tasksRepository.get(internalId) map {
       case Some(cache) => cache.tasks
       case None =>
         Tasks(
@@ -41,48 +40,25 @@ class RegisterTasksService @Inject()(@Register tasksRepository: TasksRepository)
 
   def set(internalId: String, tasks: Tasks) : Future[Tasks] = {
     val cache = TaskCache(internalId, tasks)
-    save(internalId, cache)
+    tasksRepository.set(internalId, cache).map(_ => cache.tasks)
   }
 
   def set(internalId: String, operation: UpdateOperation, tasks: Tasks) : Future[Tasks] = {
-    updateTask(operation, tasks) flatMap {
-      updated =>
-        val cache = TaskCache(internalId, updated)
-        save(internalId, cache)
-    }
+    val updated = updateTask(operation, tasks, status = true)
+    set(internalId, updated)
   }
 
   def reset(internalId: String, operation: UpdateOperation, tasks: Tasks) : Future[Tasks] = {
-    resetTask(operation, tasks) flatMap {
-      updated =>
-        val cache = TaskCache(internalId, updated)
-        save(internalId, cache)
-    }
+    val updated = updateTask(operation, tasks, status = false)
+    set(internalId, updated)
   }
 
-  private def save(internalId: String, cache: TaskCache) = {
-    tasksRepository.set[TaskCache](internalId, cache).map(_ => cache.tasks)
-  }
-
-  private def updateTask(operation: UpdateOperation, tasks: Tasks) = {
-    Future.successful {
-      operation match {
-        case UpdateDetails => tasks.copy(details = true)
-        case UpdatePersonalRepresentative => tasks.copy(personalRepresentative = true)
-        case UpdateDeceased => tasks.copy(deceased = true)
-        case UpdateTaxLiability => tasks.copy(yearsOfTaxLiability = true)
-      }
-    }
-  }
-
-  private def resetTask(operation: UpdateOperation, tasks: Tasks) = {
-    Future.successful {
-      operation match {
-        case UpdateDetails => tasks.copy(details = false)
-        case UpdatePersonalRepresentative => tasks.copy(personalRepresentative = false)
-        case UpdateDeceased => tasks.copy(deceased = false)
-        case UpdateTaxLiability => tasks.copy(yearsOfTaxLiability = false)
-      }
+  private def updateTask(operation: UpdateOperation, tasks: Tasks, status: Boolean) = {
+    operation match {
+      case UpdateDetails => tasks.copy(details = status)
+      case UpdatePersonalRepresentative => tasks.copy(personalRepresentative = status)
+      case UpdateDeceased => tasks.copy(deceased = status)
+      case UpdateTaxLiability => tasks.copy(yearsOfTaxLiability = status)
     }
   }
 

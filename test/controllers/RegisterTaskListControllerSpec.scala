@@ -17,8 +17,9 @@
 package controllers
 
 import base.SpecBase
-import models.register.Operations.{UpdateDetails, UpdateTaxLiability}
-import org.mockito.Matchers.any
+import models.register.Operations.UpdateTaxLiability
+import models.register.Tasks
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import play.api.Application
 import play.api.http.Status
@@ -26,7 +27,6 @@ import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import models.register.Tasks
 import services.RegisterTasksService
 
 import scala.concurrent.Future

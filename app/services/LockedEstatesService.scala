@@ -19,7 +19,7 @@ package services
 import javax.inject.{Inject, Singleton}
 import play.api.Logging
 import models.claim_an_estate.EstateLock
-import models.claim_an_estate.responses.{GetLockFound, GetLockNotFound, LockedEstateResponse, StoreErrorsResponse, StoreParsingError, StoreSuccessResponse}
+import models.claim_an_estate.responses.{GetLockFound, GetLockNotFound, LockedEstateResponse, StoreParsingError, StoreSuccessResponse}
 import repositories.LockedEstatesRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.Session
@@ -37,14 +37,17 @@ class LockedEstatesService @Inject()(private val lockedEstatesRepository: Locked
     }
   }
 
-  def store(internalId: String, maybeUtr: Option[String], maybeManagedByAgent: Option[Boolean], maybeEstateLocked: Option[Boolean])(implicit hc: HeaderCarrier): Future[LockedEstateResponse] = {
+  def store(internalId: String, maybeUtr: Option[String], maybeManagedByAgent: Option[Boolean], maybeEstateLocked: Option[Boolean])
+           (implicit hc: HeaderCarrier): Future[LockedEstateResponse] = {
 
     val estateLock = (maybeUtr, maybeManagedByAgent, maybeEstateLocked) match {
       case (Some(utr), Some(managedByAgent), None) =>
         logger.info(s"[store][Session ID: ${Session.id(hc)}] Estate is not locked")
         Some(EstateLock(internalId, utr, managedByAgent))
       case (Some(utr), Some(managedByAgent), Some(maybeEstateLocked)) =>
-        if (maybeEstateLocked) {logger.info(s"[store][Session ID: ${Session.id(hc)}] Estate is locked")}
+        if (maybeEstateLocked) {
+          logger.info(s"[store][Session ID: ${Session.id(hc)}] Estate is locked")
+        }
         Some(EstateLock(internalId, utr, managedByAgent, maybeEstateLocked))
       case _ => None
     }
@@ -52,8 +55,8 @@ class LockedEstatesService @Inject()(private val lockedEstatesRepository: Locked
     estateLock match {
       case Some(tc) =>
         lockedEstatesRepository.store(tc).map {
-          case Left(writeErrors) => StoreErrorsResponse(writeErrors)
-          case Right(storedEstateLock) => StoreSuccessResponse(storedEstateLock)
+          case None => StoreParsingError
+          case Some(storedEstateLock) => StoreSuccessResponse(storedEstateLock)
         }
       case None => Future.successful(StoreParsingError)
     }

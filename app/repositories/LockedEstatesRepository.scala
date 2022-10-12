@@ -16,77 +16,45 @@
 
 package repositories
 
-import javax.inject.{Inject, Singleton}
-import play.api.libs.json.Json
-import play.api.{Configuration, Logging}
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.BSONDocument
-import reactivemongo.play.json.ImplicitBSONHandlers.JsObjectDocumentWriter
-import reactivemongo.play.json.collection.JSONCollection
+import com.mongodb.client.model.ReturnDocument
+import config.AppConfig
 import models.claim_an_estate.EstateLock
-import models.repository.StorageErrors
-import reactivemongo.api.WriteConcern
+import org.mongodb.scala.model._
+import play.api.libs.json.Format
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
+import java.util.concurrent.TimeUnit
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
-class LockedEstatesRepository @Inject()(mongo: MongoDriver,
-                                        config: Configuration)
-                                       (implicit ec: ExecutionContext) extends Logging{
-
-  val collectionName: String = "claimAttempts"
-
-  private val expireAfterSeconds = config.get[Int]("mongodb.expireAfterSeconds")
-
-  private val lastUpdatedIndex = Index(
-    key = Seq("lastUpdated" -> IndexType.Ascending),
-    name = Some("estate-claims-last-updated-index"),
-    options = BSONDocument("expireAfterSeconds" -> expireAfterSeconds)
+class LockedEstatesRepository @Inject()(mongo: MongoComponent,
+                                        config: AppConfig)
+                                       (implicit ec: ExecutionContext) extends PlayMongoRepository[EstateLock](
+  mongoComponent = mongo,
+  domainFormat = Format(EstateLock.reads, EstateLock.writes),
+  collectionName = "claimAttempts",
+  indexes = Seq(
+    IndexModel(
+      Indexes.ascending("lastUpdated"),
+      IndexOptions().name("estate-claims-last-updated-index")
+        .expireAfter(config.expireAfterSeconds, TimeUnit.SECONDS)
+        .unique(false))
   )
+) {
 
-  private def collection: Future[JSONCollection] =
-    for {
-      _   <- ensureIndexes
-      res <- Future.successful(mongo.api.collection[JSONCollection](collectionName))
-    } yield res
-
-  private def ensureIndexes = for {
-    collection              <- Future.successful(mongo.api.collection[JSONCollection](collectionName))
-    lastUpdateIndexCreated  <- collection.indexesManager.ensure(lastUpdatedIndex)
-  } yield {
-    logger.info(s"[ensureIndexes] estate-claims-last-updated-index index newly created $lastUpdateIndexCreated")
-    lastUpdateIndexCreated
-  }
+  private def byId(id: String) = Filters.eq("_id", id)
 
   def get(internalId: String): Future[Option[EstateLock]] =
-    collection.flatMap(_.find(Json.obj("_id" -> internalId), projection = None).one[EstateLock])
+    collection.find(byId(internalId)).headOption()
 
-  def remove(internalId: String): Future[Option[EstateLock]] =
-    collection.flatMap(
-      _.findAndRemove(
-        Json.obj("_id" -> internalId),
-        None,
-        None,
-        WriteConcern.Default,
-        None,
-        None,
-        Seq.empty
-      ).map(_.result[EstateLock])
-    )
+  def store(estateLock: EstateLock): Future[Option[EstateLock]] = {
+    val selector = byId(estateLock.internalId)
+    val options = new FindOneAndReplaceOptions()
+      .upsert(true)
+      .returnDocument(ReturnDocument.AFTER)
 
-  def store(estateLock: EstateLock): Future[Either[StorageErrors, EstateLock]] = {
-
-    val selector = Json.obj(
-      "_id" -> estateLock.internalId
-    )
-
-    val modifier = Json.obj(
-      "$set" -> estateLock
-    )
-
-    collection.flatMap(_.update.one(q = selector, u = modifier, upsert = true, multi = false)).map {
-      case result if result.writeErrors.nonEmpty => Left(StorageErrors(result.writeErrors))
-      case _ => Right(estateLock)
-    }
+    collection.findOneAndReplace(selector, estateLock, options).headOption()
   }
 }

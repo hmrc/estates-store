@@ -11,7 +11,7 @@
     <logger name="services" level="${logger.application:-INFO}"/>
     <logger name="repository" level="${logger.application:-INFO}"/>
 
-    <root level="${logger.root:-ERROR}">
+    <root level="${logger.root:-INFO}">
         <appender-ref ref="STDOUT"/>
     </root>
 

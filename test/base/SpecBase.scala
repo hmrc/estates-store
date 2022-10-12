@@ -38,9 +38,9 @@ import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.MimeTypes
-import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.inject.{Injector, bind}
 import play.api.libs.json.{JsValue, Json}
@@ -78,12 +78,6 @@ class SpecBase extends AnyFreeSpec
 
   protected def applicationBuilder(): GuiceApplicationBuilder = {
     new GuiceApplicationBuilder()
-      .configure(
-        Seq(
-          "metrics.enabled" -> false,
-          "auditing.enabled" -> false
-        ): _*
-      )
       .overrides(
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(stubControllerComponents().parsers.default))
       )
