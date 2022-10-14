@@ -17,7 +17,6 @@
 package models.claim_an_estate.responses
 
 import models.claim_an_estate.EstateLock
-import models.repository.StorageErrors
 
 trait LockedEstateResponse
 
@@ -29,6 +28,5 @@ object LockedEstateResponse {
 case class GetLockFound(foundEstateLock: EstateLock) extends LockedEstateResponse
 case object GetLockNotFound extends LockedEstateResponse
 
-case class StoreErrorsResponse(errors: StorageErrors) extends LockedEstateResponse
 case class StoreSuccessResponse(storedEstateLock: EstateLock) extends LockedEstateResponse
 case object StoreParsingError extends LockedEstateResponse

@@ -17,13 +17,11 @@
 package models
 
 import base.SpecBase
-import play.api.http.Status._
-import play.api.libs.json.Json
-import reactivemongo.api.commands.WriteError
+import models.claim_an_estate.responses.LockedEstateResponse._
 import models.responses.ErrorResponse
 import models.responses.ErrorResponse._
-import models.claim_an_estate.responses.LockedEstateResponse._
-import models.repository.StorageErrors
+import play.api.http.Status._
+import play.api.libs.json.Json
 
 class ErrorResponseSpec extends SpecBase {
 
@@ -43,42 +41,6 @@ class ErrorResponseSpec extends SpecBase {
         )
 
       val errorResponseJson = Json.toJson(ErrorResponse(status = NOT_FOUND, message = LOCKED_ESTATE_UNABLE_TO_LOCATE, errors = None))
-
-      errorResponseJson mustBe expectedJson
-    }
-
-    "must be able to provide a json object with additional storage errors" in {
-
-      val expectedJson =
-        Json.parse(
-          """
-            |{
-            |  "status": 500,
-            |  "message": "unable to store to estates store",
-            |  "errors": [
-            |  {
-            |      "index 1": [
-            |        { "code": 50, "message": "some mongo write error!" },
-            |        { "code": 120, "message": "another mongo write error!" }
-            |      ]
-            |    },
-            |    {
-            |      "index 2": [{ "code": 50, "message": "some other mongo write error :(!" }]
-            |    }
-            |  ]
-            |}
-          """.stripMargin
-        )
-
-      val storageErrors = StorageErrors(
-        Seq(
-          WriteError(index = 1, code = 50, "some mongo write error!"),
-          WriteError(index = 1, code = 120, "another mongo write error!"),
-          WriteError(index = 2, code = 50, "some other mongo write error :(!")
-        )
-      ).toJson
-
-      val errorResponseJson = Json.toJson(ErrorResponse(status = INTERNAL_SERVER_ERROR, message = UNABLE_TO_STORE, errors = Some(storageErrors)))
 
       errorResponseJson mustBe expectedJson
     }

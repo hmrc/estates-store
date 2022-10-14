@@ -23,8 +23,6 @@ case class ErrorResponse(status: Int, message: String, errors: Option[JsValue] =
 
 object ErrorResponse {
 
-  val UNABLE_TO_STORE = "unable to store to estates store"
-
   implicit val errorResponseWrites: OWrites[ErrorResponse] = (
     (JsPath \ "status").write[Int] and
     (JsPath \ "message").write[String] and

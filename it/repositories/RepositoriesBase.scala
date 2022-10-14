@@ -16,15 +16,18 @@
 
 package repositories
 
-import javax.inject.{Inject, Singleton}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.DB
+import base.ItSpecBase
+import org.mongodb.scala.MongoCollection
+import org.mongodb.scala.bson.BsonDocument
+import org.mongodb.scala.model.Filters
 
-@Singleton
-class EstatesMongoDriver @Inject()(val component: ReactiveMongoComponent) extends MongoDriver
+import scala.concurrent.ExecutionContext.Implicits.global
 
-sealed trait MongoDriver {
-  protected val component: ReactiveMongoComponent
+class RepositoriesBase extends ItSpecBase {
 
-  lazy val api: DB = component.mongoConnector.db()
+  def remove(collection: MongoCollection[_], internalId: String): Unit =
+    collection.deleteOne(Filters.eq("_id", internalId)).toFuture().map(_ => ()).futureValue
+
+  def cleanupDB(collection: MongoCollection[_]): Unit =
+    collection.deleteMany(new BsonDocument()).toFuture().futureValue
 }

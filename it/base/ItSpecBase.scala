@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package repositories
+package base
 
-import javax.inject.{Inject, Singleton}
+import com.typesafe.config.ConfigFactory
+import config.AppConfig
+import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import play.api.Configuration
 
-import scala.concurrent.ExecutionContext
+class ItSpecBase extends AnyFreeSpec with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach {
 
-@Singleton
-class RegisterTasksRepository @Inject()(mongo: MongoDriver,
-                                        config: Configuration)(implicit ec : ExecutionContext)
-  extends TasksRepository(mongo, config) {
+  implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(15, Millis))
 
-    override val collectionName: String = "registerTasks"
-
+  val appConfig: AppConfig = new AppConfig(new Configuration(ConfigFactory.load()))
 }

@@ -16,13 +16,17 @@
 
 package models
 
-import java.time.LocalDateTime
-import play.api.libs.json.Json
 import models.register.{TaskCache, Tasks}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import play.api.libs.json.Json
+
+import java.time.LocalDateTime
 
 class TaskCacheSpec extends AnyFreeSpec with Matchers {
+
+  //noinspection ScalaStyle
+  val dateTime: LocalDateTime = LocalDateTime.of(2020, 10, 5, 12, 10)
 
   "task must" - {
 
@@ -34,7 +38,7 @@ class TaskCacheSpec extends AnyFreeSpec with Matchers {
           deceased = false,
           yearsOfTaxLiability = false
         ),
-        lastUpdated = LocalDateTime.of(2020, 10, 5, 12, 10)
+        lastUpdated = dateTime
       )
 
       val json = Json.parse(
@@ -62,7 +66,7 @@ class TaskCacheSpec extends AnyFreeSpec with Matchers {
           deceased = false,
           yearsOfTaxLiability = false
         ),
-        lastUpdated = LocalDateTime.of(2020, 10, 5, 12, 10)
+        lastUpdated = dateTime
       )
 
       val json = Json.toJson(cache)

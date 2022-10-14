@@ -17,17 +17,11 @@
 package config
 
 import com.google.inject.AbstractModule
-import config.annotations.Register
 import controllers.actions.{AuthenticatedIdentifierAction, IdentifierAction}
-import repositories.{EstatesMongoDriver, MongoDriver, RegisterTasksRepository, TasksRepository}
 
 class Module extends AbstractModule {
 
   override def configure(): Unit = {
-    bind(classOf[TasksRepository]).annotatedWith(classOf[Register]).to(classOf[RegisterTasksRepository]).asEagerSingleton()
-
-    bind(classOf[MongoDriver]).to(classOf[EstatesMongoDriver]).asEagerSingleton()
-
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
   }
 

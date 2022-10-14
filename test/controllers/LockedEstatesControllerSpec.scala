@@ -17,7 +17,9 @@
 package controllers
 
 import base.SpecBase
-import org.mockito.Matchers.any
+import models.claim_an_estate.EstateLock
+import models.claim_an_estate.responses._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito._
 import play.api.Application
@@ -26,17 +28,12 @@ import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import reactivemongo.api.commands.WriteError
-import models.claim_an_estate.EstateLock
-import models.claim_an_estate.responses.{GetLockFound, GetLockNotFound, StoreErrorsResponse, StoreParsingError, StoreSuccessResponse}
-import models.repository.StorageErrors
 import services.LockedEstatesService
 
 import scala.concurrent.Future
 
 
 class LockedEstatesControllerSpec extends SpecBase {
-
 
   private val service: LockedEstatesService = mock[LockedEstatesService]
 
@@ -121,45 +118,6 @@ class LockedEstatesControllerSpec extends SpecBase {
       val result = route(application, request).value
 
       status(result) mustBe Status.BAD_REQUEST
-      contentAsJson(result) mustBe expectedJson
-    }
-
-    "must return INTERNAL_SERVER_ERROR and an error response if the service returns a StoreErrorsResponse" in {
-      val request = FakeRequest(POST, routes.LockedEstatesController.store().url)
-        .withJsonBody(Json.obj(
-          "some-incorrect-key" -> "some-incorrect-value"
-        ))
-
-      val storageErrors = StorageErrors(
-        Seq(
-          WriteError(index = 0, code = 100, "some mongo write error!"),
-          WriteError(index = 1, code = 100, "another mongo write error!"),
-          WriteError(index = 0, code = 200, "a different mongo write error!")
-        )
-      )
-
-      val expectedJson = Json.parse(
-        """
-          |{
-          |  "status": 500,
-          |  "message": "unable to store to estates store",
-          |  "errors": [
-          |  {
-          |      "index 0": [
-          |        { "code": 100, "message": "some mongo write error!" },
-          |        { "code": 200, "message": "a different mongo write error!" }
-          |      ]
-          |    },
-          |    { "index 1": [{ "code": 100, "message": "another mongo write error!" }] }
-          |  ]
-          |}
-        """.stripMargin
-      )
-      when(service.store(any(), any(), any(), any())(any())).thenReturn(Future.successful(StoreErrorsResponse(storageErrors)))
-
-      val result = route(application, request).value
-
-      status(result) mustBe Status.INTERNAL_SERVER_ERROR
       contentAsJson(result) mustBe expectedJson
     }
   }

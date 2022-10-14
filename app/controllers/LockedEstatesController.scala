@@ -16,52 +16,50 @@
 
 package controllers
 
-import javax.inject.{Inject, Singleton}
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc._
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 import controllers.actions.IdentifierAction
+import models.claim_an_estate.responses.LockedEstateResponse._
 import models.claim_an_estate.responses._
 import models.responses.ErrorResponse
-import services.LockedEstatesService
-import models.claim_an_estate.responses.LockedEstateResponse._
 import models.responses.ErrorResponse._
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc._
+import services.LockedEstatesService
+import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton()
 class LockedEstatesController @Inject()(
-																				 cc: ControllerComponents,
-																				 service: LockedEstatesService,
-																				 authAction: IdentifierAction)(implicit ec: ExecutionContext) extends BackendController(cc) {
+                                         cc: ControllerComponents,
+                                         service: LockedEstatesService,
+                                         authAction: IdentifierAction)(implicit ec: ExecutionContext) extends BackendController(cc) {
 
-	def get(): Action[AnyContent] = authAction.async {
-		implicit request =>
+  def get(): Action[AnyContent] = authAction.async {
+    implicit request =>
 
-			service.get(request.internalId) map {
-				case GetLockFound(estateLock) =>
-					Ok(estateLock.toResponse)
-				case GetLockNotFound =>
-					NotFound(Json.toJson(ErrorResponse(NOT_FOUND, LOCKED_ESTATE_UNABLE_TO_LOCATE)))
-			}
-	}
+      service.get(request.internalId) map {
+        case GetLockFound(estateLock) =>
+          Ok(estateLock.toResponse)
+        case GetLockNotFound =>
+          NotFound(Json.toJson(ErrorResponse(NOT_FOUND, LOCKED_ESTATE_UNABLE_TO_LOCATE)))
+      }
+  }
 
-	def store(): Action[JsValue] = authAction.async(parse.tolerantJson) {
-		implicit request =>
+  def store(): Action[JsValue] = authAction.async(parse.tolerantJson) {
+    implicit request =>
 
-			val maybeUtr = (request.body \ "utr").asOpt[String]
-			val maybeManagedByAgent = (request.body \ "managedByAgent").asOpt[Boolean]
-			val maybeEstateLocked = (request.body \ "estateLocked").asOpt[Boolean]
-			val internalId = request.internalId
+      val maybeUtr = (request.body \ "utr").asOpt[String]
+      val maybeManagedByAgent = (request.body \ "managedByAgent").asOpt[Boolean]
+      val maybeEstateLocked = (request.body \ "estateLocked").asOpt[Boolean]
+      val internalId = request.internalId
 
-			service.store(internalId, maybeUtr, maybeManagedByAgent, maybeEstateLocked) map {
-				case StoreSuccessResponse(estateLock) =>
-					Created(estateLock.toResponse)
-				case StoreParsingError =>
-					BadRequest(Json.toJson(ErrorResponse(BAD_REQUEST, LOCKED_ESTATE_UNABLE_TO_PARSE)))
-				case StoreErrorsResponse(storageErrors) =>
-					InternalServerError(Json.toJson(ErrorResponse(INTERNAL_SERVER_ERROR, UNABLE_TO_STORE, Some(storageErrors.toJson))))
-			}
-	}
+      service.store(internalId, maybeUtr, maybeManagedByAgent, maybeEstateLocked) map {
+        case StoreSuccessResponse(estateLock) =>
+          Created(estateLock.toResponse)
+        case StoreParsingError =>
+          BadRequest(Json.toJson(ErrorResponse(BAD_REQUEST, LOCKED_ESTATE_UNABLE_TO_PARSE)))
+      }
+  }
 
 }
