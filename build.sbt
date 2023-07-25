@@ -21,8 +21,9 @@ lazy val microservice = Project(appName, file("."))
   .enablePlugins(SbtAutoBuildPlugin, PlayScala, SbtDistributablesPlugin)
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
   .settings(
-    scalaVersion := "2.12.16",
-    SilencerSettings(),
+    scalaVersion := "2.13.11",
+    // To resolve a bug with version 2.x.x of the scoverage plugin - https://github.com/sbt/sbt/issues/6997
+    libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
     majorVersion                     := 0,
     libraryDependencies              ++= AppDependencies.compile ++ AppDependencies.test,
     PlayKeys.playDefaultPort := 8835,

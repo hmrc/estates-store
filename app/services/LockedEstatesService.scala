@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,10 @@ import repositories.LockedEstatesRepository
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.Session
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
-class LockedEstatesService @Inject()(private val lockedEstatesRepository: LockedEstatesRepository) extends Logging {
+class LockedEstatesService @Inject()(private val lockedEstatesRepository: LockedEstatesRepository)(implicit ec: ExecutionContext) extends Logging {
 
   def get(internalId: String): Future[LockedEstateResponse] = {
     lockedEstatesRepository.get(internalId) map {
