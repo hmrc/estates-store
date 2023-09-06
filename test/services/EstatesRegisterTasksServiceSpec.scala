@@ -29,7 +29,7 @@ import scala.concurrent.Future
 
 class EstatesRegisterTasksServiceSpec extends SpecBase {
 
-  private val repository = mock[EstateRegisterTasksRepository]
+  private val repository = mock(classOf[EstateRegisterTasksRepository])
 
   private val service = new RegisterTasksService(repository)
 

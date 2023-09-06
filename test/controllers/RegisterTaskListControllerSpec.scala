@@ -33,7 +33,7 @@ import scala.concurrent.Future
 
 class RegisterTaskListControllerSpec extends SpecBase {
 
-  private val service: RegisterTasksService = mock[RegisterTasksService]
+  private val service: RegisterTasksService = mock(classOf[RegisterTasksService])
 
   lazy val application: Application = applicationBuilder().overrides(
     bind[RegisterTasksService].toInstance(service)

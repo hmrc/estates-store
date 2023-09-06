@@ -8,9 +8,23 @@ This microservice is responsible for:
 
 - locked out from Trust IV following 3 failures
 
+---
+
+To run tests on this service use the test script:
+
+```
+./run_all_tests.sh
+```
+
+---
+
 To run locally using the micro-service provided by the service manager:
 
-***sm2 --start ESTATES_ALL***
+```
+sm2 --start ESTATES_ALL
+```
+
+---
 
 ### License
 
