@@ -35,7 +35,7 @@ import scala.concurrent.Future
 
 class LockedEstatesControllerSpec extends SpecBase {
 
-  private val service: LockedEstatesService = mock[LockedEstatesService]
+  private val service: LockedEstatesService = mock(classOf[LockedEstatesService])
 
   lazy val application: Application = applicationBuilder().overrides(
     bind[LockedEstatesService].toInstance(service)

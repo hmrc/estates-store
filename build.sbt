@@ -1,6 +1,5 @@
 import play.sbt.routes.RoutesKeys
 import uk.gov.hmrc.DefaultBuildSettings.integrationTestSettings
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin.publishingSettings
 
 val appName = "estates-store"
 
@@ -11,7 +10,7 @@ lazy val scoverageSettings = {
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;.*Reverse.*;.*Routes.*;.*filters.*;.*handlers.*;.*components.*;.*Session.*;" +
       "prod.*;testOnlyDoNotUseInProd.*;testOnlyDoNotUseInAppConf.*;uk.gov.hmrc.BuildInfo;app.*;prod.*;config.*;.*AppConfig",
-    ScoverageKeys.coverageMinimumStmtTotal := 93,
+    ScoverageKeys.coverageMinimumStmtTotal := 98,
     ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )
@@ -25,20 +24,19 @@ lazy val microservice = Project(appName, file("."))
     // To resolve a bug with version 2.x.x of the scoverage plugin - https://github.com/sbt/sbt/issues/6997
     libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
     majorVersion                     := 0,
-    libraryDependencies              ++= AppDependencies.compile ++ AppDependencies.test,
+    libraryDependencies              ++= AppDependencies(),
     PlayKeys.playDefaultPort := 8835,
     RoutesKeys.routesImport := Seq.empty,
-    publishingSettings,
     scoverageSettings)
   .settings(inConfig(Test)(testSettings))
   .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(itSettings): _*)
+  .settings(inConfig(IntegrationTest)(itSettings) *)
   .settings(
     inConfig(IntegrationTest)(itSettings),
     integrationTestSettings()
   )
 
-lazy val testSettings: Seq[Def.Setting[_]] = Seq(
+lazy val testSettings: Seq[Def.Setting[?]] = Seq(
   fork                         := true,
   parallelExecution            := false,
   javaOptions                  ++= Seq(
@@ -58,4 +56,4 @@ lazy val itSettings = Defaults.itSettings ++ Seq(
   fork                         := true
 )
 
-addCommandAlias("scalastyleAll", "all scalastyle test:scalastyle it:scalastyle")
+addCommandAlias("scalastyleAll", "all scalastyle Test/scalastyle IntegrationTest/scalastyle")
