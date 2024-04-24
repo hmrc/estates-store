@@ -16,7 +16,6 @@
 
 package controllers.actions
 
-import akka.stream.Materializer
 import base.SpecBase
 import com.google.inject.Inject
 import play.api.libs.json.JsValue
@@ -31,8 +30,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.{ExecutionContext, Future}
 
 class IdentifierActionSpec extends SpecBase {
-
-  implicit lazy val mtrlzr: Materializer = injector.instanceOf[Materializer]
 
   implicit val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
 
