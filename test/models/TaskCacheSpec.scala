@@ -25,7 +25,6 @@ import java.time.LocalDateTime
 
 class TaskCacheSpec extends AnyFreeSpec with Matchers {
 
-  //noinspection ScalaStyle
   val dateTime: LocalDateTime = LocalDateTime.of(2020, 10, 5, 12, 10)
 
   "task must" - {
