@@ -1,4 +1,9 @@
+digital-service: Estates
+description: Manages task statuses for registration and maintenance task lists, and handles Trust IV lockouts after 3 failures.
+type: Service
+service-type: backend
 repoVisibility: public_0C3F0CE3E6E6448FAD341E7BFA50FCD333E06A20CFF05FCACE61154DDBBADF71
 test-repositories:
   - estates-acceptance-tests
   - estates-iv-ui-tests
+  - estates-iv-perf-tests
