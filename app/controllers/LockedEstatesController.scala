@@ -30,36 +30,34 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class LockedEstatesController @Inject()(
-                                         cc: ControllerComponents,
-                                         service: LockedEstatesService,
-                                         authAction: IdentifierAction)(implicit ec: ExecutionContext) extends BackendController(cc) {
+class LockedEstatesController @Inject() (
+  cc: ControllerComponents,
+  service: LockedEstatesService,
+  authAction: IdentifierAction
+)(implicit ec: ExecutionContext)
+    extends BackendController(cc) {
 
-  def get(): Action[AnyContent] = authAction.async {
-    implicit request =>
-
-      service.get(request.internalId) map {
-        case GetLockFound(estateLock) =>
-          Ok(estateLock.toResponse)
-        case GetLockNotFound =>
-          NotFound(Json.toJson(ErrorResponse(NOT_FOUND, LOCKED_ESTATE_UNABLE_TO_LOCATE)))
-      }
+  def get(): Action[AnyContent] = authAction.async { implicit request =>
+    service.get(request.internalId) map {
+      case GetLockFound(estateLock) =>
+        Ok(estateLock.toResponse)
+      case GetLockNotFound          =>
+        NotFound(Json.toJson(ErrorResponse(NOT_FOUND, LOCKED_ESTATE_UNABLE_TO_LOCATE)))
+    }
   }
 
-  def store(): Action[JsValue] = authAction.async(parse.tolerantJson) {
-    implicit request =>
+  def store(): Action[JsValue] = authAction.async(parse.tolerantJson) { implicit request =>
+    val maybeUtr            = (request.body \ "utr").asOpt[String]
+    val maybeManagedByAgent = (request.body \ "managedByAgent").asOpt[Boolean]
+    val maybeEstateLocked   = (request.body \ "estateLocked").asOpt[Boolean]
+    val internalId          = request.internalId
 
-      val maybeUtr = (request.body \ "utr").asOpt[String]
-      val maybeManagedByAgent = (request.body \ "managedByAgent").asOpt[Boolean]
-      val maybeEstateLocked = (request.body \ "estateLocked").asOpt[Boolean]
-      val internalId = request.internalId
-
-      service.store(internalId, maybeUtr, maybeManagedByAgent, maybeEstateLocked) map {
-        case StoreSuccessResponse(estateLock) =>
-          Created(estateLock.toResponse)
-        case StoreParsingError =>
-          BadRequest(Json.toJson(ErrorResponse(BAD_REQUEST, LOCKED_ESTATE_UNABLE_TO_PARSE)))
-      }
+    service.store(internalId, maybeUtr, maybeManagedByAgent, maybeEstateLocked) map {
+      case StoreSuccessResponse(estateLock) =>
+        Created(estateLock.toResponse)
+      case StoreParsingError                =>
+        BadRequest(Json.toJson(ErrorResponse(BAD_REQUEST, LOCKED_ESTATE_UNABLE_TO_PARSE)))
+    }
   }
 
 }

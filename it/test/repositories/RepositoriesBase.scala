@@ -30,4 +30,5 @@ class RepositoriesBase extends ItSpecBase {
 
   def cleanupDB(collection: MongoCollection[_]): Unit =
     collection.deleteMany(new BsonDocument()).toFuture().futureValue
+
 }

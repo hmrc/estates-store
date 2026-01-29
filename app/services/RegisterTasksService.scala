@@ -23,12 +23,12 @@ import repositories.EstateRegisterTasksRepository
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RegisterTasksService @Inject()(tasksRepository: EstateRegisterTasksRepository)(implicit ec: ExecutionContext) {
+class RegisterTasksService @Inject() (tasksRepository: EstateRegisterTasksRepository)(implicit ec: ExecutionContext) {
 
-  def get(internalId: String): Future[Tasks] = {
+  def get(internalId: String): Future[Tasks] =
     tasksRepository.get(internalId) map {
       case Some(cache) => cache.tasks
-      case None =>
+      case None        =>
         Tasks(
           details = false,
           personalRepresentative = false,
@@ -36,30 +36,28 @@ class RegisterTasksService @Inject()(tasksRepository: EstateRegisterTasksReposit
           yearsOfTaxLiability = false
         )
     }
-  }
 
-  def set(internalId: String, tasks: Tasks) : Future[Tasks] = {
+  def set(internalId: String, tasks: Tasks): Future[Tasks] = {
     val cache = TaskCache(internalId, tasks)
     tasksRepository.set(internalId, cache).map(_ => cache.tasks)
   }
 
-  def set(internalId: String, operation: UpdateOperation, tasks: Tasks) : Future[Tasks] = {
+  def set(internalId: String, operation: UpdateOperation, tasks: Tasks): Future[Tasks] = {
     val updated = updateTask(operation, tasks, status = true)
     set(internalId, updated)
   }
 
-  def reset(internalId: String, operation: UpdateOperation, tasks: Tasks) : Future[Tasks] = {
+  def reset(internalId: String, operation: UpdateOperation, tasks: Tasks): Future[Tasks] = {
     val updated = updateTask(operation, tasks, status = false)
     set(internalId, updated)
   }
 
-  private def updateTask(operation: UpdateOperation, tasks: Tasks, status: Boolean) = {
+  private def updateTask(operation: UpdateOperation, tasks: Tasks, status: Boolean) =
     operation match {
-      case UpdateDetails => tasks.copy(details = status)
+      case UpdateDetails                => tasks.copy(details = status)
       case UpdatePersonalRepresentative => tasks.copy(personalRepresentative = status)
-      case UpdateDeceased => tasks.copy(deceased = status)
-      case UpdateTaxLiability => tasks.copy(yearsOfTaxLiability = status)
+      case UpdateDeceased               => tasks.copy(deceased = status)
+      case UpdateTaxLiability           => tasks.copy(yearsOfTaxLiability = status)
     }
-  }
 
 }

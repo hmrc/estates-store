@@ -18,13 +18,10 @@ package models.register
 
 import play.api.libs.json.{Format, Json}
 
-case class Tasks(details: Boolean,
-                 personalRepresentative: Boolean,
-                 deceased: Boolean,
-                 yearsOfTaxLiability: Boolean)
+case class Tasks(details: Boolean, personalRepresentative: Boolean, deceased: Boolean, yearsOfTaxLiability: Boolean)
 
 object Tasks {
 
-  implicit val formats : Format[Tasks] = Json.format[Tasks]
+  implicit val formats: Format[Tasks] = Json.format[Tasks]
 
 }

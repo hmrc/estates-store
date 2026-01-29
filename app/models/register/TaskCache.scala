@@ -21,27 +21,24 @@ import java.time.LocalDateTime
 import play.api.libs.json.{OWrites, Reads, __}
 import formats.MongoDateTimeFormats
 
-case class TaskCache(internalId: String,
-                     tasks: Tasks,
-                     lastUpdated: LocalDateTime = LocalDateTime.now)
+case class TaskCache(internalId: String, tasks: Tasks, lastUpdated: LocalDateTime = LocalDateTime.now)
 
 object TaskCache extends MongoDateTimeFormats {
 
   import play.api.libs.functional.syntax._
 
-  implicit lazy val reads: Reads[TaskCache] = {
+  implicit lazy val reads: Reads[TaskCache] =
     (
       (__ \ "internalId").read[String] and
         (__ \ "tasks").read[Tasks] and
         (__ \ "lastUpdated").read(localDateTimeRead)
-      ) (TaskCache.apply _)
-  }
+    )(TaskCache.apply _)
 
-  implicit lazy val writes: OWrites[TaskCache] = {
+  implicit lazy val writes: OWrites[TaskCache] =
     (
       (__ \ "internalId").write[String] and
         (__ \ "tasks").write[Tasks] and
         (__ \ "lastUpdated").write(localDateTimeWrite)
-      ) (unlift(TaskCache.unapply))
-  }
+    )(unlift(TaskCache.unapply))
+
 }

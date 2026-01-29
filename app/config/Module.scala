@@ -21,8 +21,7 @@ import controllers.actions.{AuthenticatedIdentifierAction, IdentifierAction}
 
 class Module extends AbstractModule {
 
-  override def configure(): Unit = {
+  override def configure(): Unit =
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
-  }
 
 }

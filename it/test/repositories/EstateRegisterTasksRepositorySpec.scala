@@ -38,27 +38,28 @@ class EstateRegisterTasksRepositorySpec extends RepositoriesBase with MongoSuppo
     }
 
     "must return TaskCache when one exists" in {
-      val task = Tasks(details = false, personalRepresentative = false, deceased = false, yearsOfTaxLiability = false)
+      val task  = Tasks(details = false, personalRepresentative = false, deceased = false, yearsOfTaxLiability = false)
       val cache = TaskCache(internalId, task)
 
-      repository.set(internalId, cache).futureValue mustBe true
+      repository.set(internalId, cache).futureValue      mustBe true
       repository.get(internalId).futureValue.value.tasks mustBe task
     }
 
     "must set an updated Task and return one that exists for that user" in {
-      val task = Tasks(details = true, personalRepresentative = false, deceased = false, yearsOfTaxLiability = false)
+      val task    = Tasks(details = true, personalRepresentative = false, deceased = false, yearsOfTaxLiability = false)
       val initial = TaskCache(internalId, task)
 
-      repository.set(internalId, initial).futureValue mustBe true
+      repository.set(internalId, initial).futureValue    mustBe true
       repository.get(internalId).futureValue.value.tasks mustBe task
 
       // update
 
-      val updatedTask = Tasks(details = true, personalRepresentative = true, deceased = false, yearsOfTaxLiability = false)
+      val updatedTask  =
+        Tasks(details = true, personalRepresentative = true, deceased = false, yearsOfTaxLiability = false)
       val updatedCache = TaskCache(internalId, updatedTask)
 
       repository.set(internalId, updatedCache).futureValue mustBe true
-      repository.get(internalId).futureValue.value.tasks mustBe updatedTask
+      repository.get(internalId).futureValue.value.tasks   mustBe updatedTask
     }
   }
 

@@ -29,20 +29,21 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
-class LockedEstatesRepository @Inject()(mongo: MongoComponent,
-                                        config: AppConfig)
-                                       (implicit ec: ExecutionContext) extends PlayMongoRepository[EstateLock](
-  mongoComponent = mongo,
-  domainFormat = Format(EstateLock.reads, EstateLock.writes),
-  collectionName = "claimAttempts",
-  indexes = Seq(
-    IndexModel(
-      Indexes.ascending("lastUpdated"),
-      IndexOptions().name("estate-claims-last-updated-index")
-        .expireAfter(config.expireAfterSeconds, TimeUnit.SECONDS)
-        .unique(false))
-  )
-) {
+class LockedEstatesRepository @Inject() (mongo: MongoComponent, config: AppConfig)(implicit ec: ExecutionContext)
+    extends PlayMongoRepository[EstateLock](
+      mongoComponent = mongo,
+      domainFormat = Format(EstateLock.reads, EstateLock.writes),
+      collectionName = "claimAttempts",
+      indexes = Seq(
+        IndexModel(
+          Indexes.ascending("lastUpdated"),
+          IndexOptions()
+            .name("estate-claims-last-updated-index")
+            .expireAfter(config.expireAfterSeconds, TimeUnit.SECONDS)
+            .unique(false)
+        )
+      )
+    ) {
 
   private def byId(id: String) = Filters.eq("_id", id)
 
@@ -51,10 +52,11 @@ class LockedEstatesRepository @Inject()(mongo: MongoComponent,
 
   def store(estateLock: EstateLock): Future[Option[EstateLock]] = {
     val selector = byId(estateLock.internalId)
-    val options = new FindOneAndReplaceOptions()
+    val options  = new FindOneAndReplaceOptions()
       .upsert(true)
       .returnDocument(ReturnDocument.AFTER)
 
     collection.findOneAndReplace(selector, estateLock, options).headOption()
   }
+
 }
