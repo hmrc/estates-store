@@ -22,7 +22,7 @@ trait LockedEstateResponse
 
 object LockedEstateResponse {
   val LOCKED_ESTATE_UNABLE_TO_LOCATE = "unable to locate an EstateLock for the given requests internalId"
-  val LOCKED_ESTATE_UNABLE_TO_PARSE = "Unable to parse request body into a EstateLock"
+  val LOCKED_ESTATE_UNABLE_TO_PARSE  = "Unable to parse request body into a EstateLock"
 }
 
 case class GetLockFound(foundEstateLock: EstateLock) extends LockedEstateResponse

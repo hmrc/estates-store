@@ -35,9 +35,11 @@ class RegisterTaskListControllerSpec extends SpecBase {
 
   private val service: RegisterTasksService = mock(classOf[RegisterTasksService])
 
-  lazy val application: Application = applicationBuilder().overrides(
-    bind[RegisterTasksService].toInstance(service)
-  ).build()
+  lazy val application: Application = applicationBuilder()
+    .overrides(
+      bind[RegisterTasksService].toInstance(service)
+    )
+    .build()
 
   "invoking GET /register/tasks" - {
 
@@ -55,7 +57,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.OK
+      status(result)        mustBe Status.OK
       contentAsJson(result) mustBe Json.toJson(tasks)
     }
 
@@ -71,13 +73,14 @@ class RegisterTaskListControllerSpec extends SpecBase {
         yearsOfTaxLiability = false
       )
 
-      val request = FakeRequest(POST, routes.RegisterTaskListController.setDefaultState().url).withBody(Json.toJson(tasks))
+      val request =
+        FakeRequest(POST, routes.RegisterTaskListController.setDefaultState().url).withBody(Json.toJson(tasks))
 
       when(service.set(any(), any())).thenReturn(Future.successful(tasks))
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.OK
+      status(result)        mustBe Status.OK
       contentAsJson(result) mustBe Json.toJson(tasks)
       verify(service).set("id", tasks)
 
@@ -105,14 +108,15 @@ class RegisterTaskListControllerSpec extends SpecBase {
 
       val updatedTasks = tasks.copy(yearsOfTaxLiability = false)
 
-      val request = FakeRequest(POST, routes.RegisterTaskListController.resetTaxLiability().url).withBody(Json.toJson(tasks))
+      val request =
+        FakeRequest(POST, routes.RegisterTaskListController.resetTaxLiability().url).withBody(Json.toJson(tasks))
 
       when(service.get(any())).thenReturn(Future.successful(tasks))
       when(service.reset(any(), any(), any())).thenReturn(Future.successful(updatedTasks))
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.OK
+      status(result)        mustBe Status.OK
       contentAsJson(result) mustBe Json.toJson(updatedTasks)
       verify(service).reset("id", UpdateTaxLiability, tasks)
 
@@ -152,7 +156,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.OK
+      status(result)        mustBe Status.OK
       contentAsJson(result) mustBe Json.toJson(updatedTasks)
     }
 
@@ -182,7 +186,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.OK
+      status(result)        mustBe Status.OK
       contentAsJson(result) mustBe Json.toJson(updatedTasks)
     }
 
@@ -212,7 +216,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.OK
+      status(result)        mustBe Status.OK
       contentAsJson(result) mustBe Json.toJson(updatedTasks)
     }
 
@@ -242,7 +246,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.OK
+      status(result)        mustBe Status.OK
       contentAsJson(result) mustBe Json.toJson(updatedTasks)
     }
 
@@ -272,9 +276,10 @@ class RegisterTaskListControllerSpec extends SpecBase {
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.OK
+      status(result)        mustBe Status.OK
       contentAsJson(result) mustBe Json.toJson(updatedTasks)
     }
 
   }
+
 }

@@ -33,9 +33,8 @@ class LockedEstatesServiceSpec extends SpecBase {
 
   private val service = new LockedEstatesService(repository)
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     Mockito.reset(repository)
-  }
 
   "invoking .get" - {
     "must return a GetClaimFoundResponse from the repository if there is one for the given internal id" in {

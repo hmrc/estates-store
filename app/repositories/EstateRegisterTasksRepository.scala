@@ -30,27 +30,28 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EstateRegisterTasksRepository @Inject()(mongo: MongoComponent,
-                                              config: AppConfig)(implicit ec: ExecutionContext)
-  extends PlayMongoRepository[TaskCache](
-    mongoComponent = mongo,
-    domainFormat = Format(TaskCache.reads, TaskCache.writes),
-    collectionName = "registerTasks",
-    indexes = Seq(
-      IndexModel(
-        Indexes.ascending("lastUpdated"),
-        IndexOptions().name("tasks-last-updated-index")
-          .expireAfter(config.expireAfterSeconds, TimeUnit.SECONDS)
-          .unique(false))
-    )
-  ) {
+class EstateRegisterTasksRepository @Inject() (mongo: MongoComponent, config: AppConfig)(implicit ec: ExecutionContext)
+    extends PlayMongoRepository[TaskCache](
+      mongoComponent = mongo,
+      domainFormat = Format(TaskCache.reads, TaskCache.writes),
+      collectionName = "registerTasks",
+      indexes = Seq(
+        IndexModel(
+          Indexes.ascending("lastUpdated"),
+          IndexOptions()
+            .name("tasks-last-updated-index")
+            .expireAfter(config.expireAfterSeconds, TimeUnit.SECONDS)
+            .unique(false)
+        )
+      )
+    ) {
 
   private def byId(id: String) = Filters.eq("internalId", id)
 
   def get(internalId: String): Future[Option[TaskCache]] = {
     val modifier = Updates.set("lastUpdated", LocalDateTime.now)
 
-    val options = new FindOneAndUpdateOptions()
+    val options  = new FindOneAndUpdateOptions()
       .upsert(false)
       .returnDocument(ReturnDocument.AFTER)
     val selector = byId(internalId)
@@ -60,9 +61,10 @@ class EstateRegisterTasksRepository @Inject()(mongo: MongoComponent,
 
   def set(internalId: String, updatedCache: TaskCache): Future[Boolean] = {
     val selector = byId(internalId)
-    val options = new ReplaceOptions()
+    val options  = new ReplaceOptions()
       .upsert(true)
 
     collection.replaceOne(selector, updatedCache, options).headOption().map(_.exists(_.wasAcknowledged()))
   }
+
 }

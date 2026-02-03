@@ -25,7 +25,6 @@ import play.api.libs.json.Json
 
 class ErrorResponseSpec extends SpecBase {
 
-
   "ErrorResponse" - {
 
     "must be able to provide a minimal json object with an error" in {
@@ -40,9 +39,11 @@ class ErrorResponseSpec extends SpecBase {
           """.stripMargin
         )
 
-      val errorResponseJson = Json.toJson(ErrorResponse(status = NOT_FOUND, message = LOCKED_ESTATE_UNABLE_TO_LOCATE, errors = None))
+      val errorResponseJson =
+        Json.toJson(ErrorResponse(status = NOT_FOUND, message = LOCKED_ESTATE_UNABLE_TO_LOCATE, errors = None))
 
       errorResponseJson mustBe expectedJson
     }
   }
+
 }

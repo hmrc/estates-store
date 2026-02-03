@@ -53,11 +53,12 @@ class LockedEstatesRepositorySpec extends RepositoriesBase with MongoSupport {
     "must be able to update a estate claim with the same auth id" in {
       val lastUpdated = LocalDateTime.parse("2000-01-01 12:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
 
-      val estateLock = EstateLock(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
+      val estateLock        = EstateLock(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
       val updatedEstateLock = estateLock.copy(utr = "0987654321")
 
-      repository.store(estateLock).futureValue.value mustBe estateLock
+      repository.store(estateLock).futureValue.value        mustBe estateLock
       repository.store(updatedEstateLock).futureValue.value mustBe updatedEstateLock
     }
   }
+
 }

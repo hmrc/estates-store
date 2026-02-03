@@ -32,18 +32,18 @@ import services.LockedEstatesService
 
 import scala.concurrent.Future
 
-
 class LockedEstatesControllerSpec extends SpecBase {
 
   private val service: LockedEstatesService = mock(classOf[LockedEstatesService])
 
-  lazy val application: Application = applicationBuilder().overrides(
-    bind[LockedEstatesService].toInstance(service)
-  ).build()
+  lazy val application: Application = applicationBuilder()
+    .overrides(
+      bind[LockedEstatesService].toInstance(service)
+    )
+    .build()
 
-  override def beforeEach(): Unit = {
+  override def beforeEach(): Unit =
     Mockito.reset(service)
-  }
 
   "invoking GET /claim" - {
     "must return OK and a EstateLock if there is one for the internal id" in {
@@ -55,7 +55,7 @@ class LockedEstatesControllerSpec extends SpecBase {
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.OK
+      status(result)        mustBe Status.OK
       contentAsJson(result) mustBe estateLock.toResponse
     }
 
@@ -75,7 +75,7 @@ class LockedEstatesControllerSpec extends SpecBase {
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.NOT_FOUND
+      status(result)        mustBe Status.NOT_FOUND
       contentAsJson(result) mustBe expectedJson
     }
   }
@@ -83,26 +83,31 @@ class LockedEstatesControllerSpec extends SpecBase {
   "invoking POST /claim" - {
     "must return CREATED and the stored EstateLock if the service returns a StoreSuccessResponse" in {
       val request = FakeRequest(POST, routes.LockedEstatesController.store().url)
-        .withJsonBody(Json.obj(
-          "utr" -> "0123456789",
-          "managedByAgent" -> true
-        ))
+        .withJsonBody(
+          Json.obj(
+            "utr"            -> "0123456789",
+            "managedByAgent" -> true
+          )
+        )
 
       val estateLock = EstateLock(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
 
-      when(service.store(any(), any(), any(), any())(any())).thenReturn(Future.successful(StoreSuccessResponse(estateLock)))
+      when(service.store(any(), any(), any(), any())(any()))
+        .thenReturn(Future.successful(StoreSuccessResponse(estateLock)))
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.CREATED
+      status(result)        mustBe Status.CREATED
       contentAsJson(result) mustBe estateLock.toResponse
     }
 
     "must return BAD_REQUEST and an error response if the service returns a StoreParsingErrorResponse" in {
       val request = FakeRequest(POST, routes.LockedEstatesController.store().url)
-        .withJsonBody(Json.obj(
-          "some-incorrect-key" -> "some-incorrect-value"
-        ))
+        .withJsonBody(
+          Json.obj(
+            "some-incorrect-key" -> "some-incorrect-value"
+          )
+        )
 
       val expectedJson = Json.parse(
         """
@@ -117,7 +122,7 @@ class LockedEstatesControllerSpec extends SpecBase {
 
       val result = route(application, request).value
 
-      status(result) mustBe Status.BAD_REQUEST
+      status(result)        mustBe Status.BAD_REQUEST
       contentAsJson(result) mustBe expectedJson
     }
   }

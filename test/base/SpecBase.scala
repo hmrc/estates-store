@@ -32,16 +32,16 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{CONTENT_TYPE, stubControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 
-
-class SpecBase extends AnyFreeSpec
-  with GuiceOneAppPerSuite
-  with Matchers
-  with OptionValues
-  with EitherValues
-  with ScalaFutures
-  with Inside
-  with BeforeAndAfterEach
-  with BeforeAndAfter {
+class SpecBase
+    extends AnyFreeSpec
+    with GuiceOneAppPerSuite
+    with Matchers
+    with OptionValues
+    with EitherValues
+    with ScalaFutures
+    with Inside
+    with BeforeAndAfterEach
+    with BeforeAndAfter {
   implicit lazy val hc: HeaderCarrier = HeaderCarrier()
 
   def injector: Injector = app.injector
@@ -58,17 +58,10 @@ class SpecBase extends AnyFreeSpec
 
   def injectedParsers: PlayBodyParsers = injector.instanceOf[PlayBodyParsers]
 
-  protected def applicationBuilder(): GuiceApplicationBuilder = {
+  protected def applicationBuilder(): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .overrides(
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(stubControllerComponents().parsers.default))
       )
-  }
 
 }
-
-
-
-
-
-

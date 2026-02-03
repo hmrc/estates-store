@@ -35,14 +35,15 @@ class EstatesRegisterTasksServiceSpec extends SpecBase {
 
   private val taskTypes = Seq(UpdateDetails, UpdatePersonalRepresentative, UpdateDeceased, UpdateTaxLiability)
 
-  private def defaultTask = Tasks(details = true, personalRepresentative = true, deceased = true, yearsOfTaxLiability = true)
+  private def defaultTask =
+    Tasks(details = true, personalRepresentative = true, deceased = true, yearsOfTaxLiability = true)
 
   private def buildExpectedUpdateTask(taskType: UpdateOperation, tasks: Tasks, status: Boolean): Tasks =
     taskType match {
-      case UpdateDetails => tasks.copy(details = status)
+      case UpdateDetails                => tasks.copy(details = status)
       case UpdatePersonalRepresentative => tasks.copy(personalRepresentative = status)
-      case UpdateDeceased => tasks.copy(deceased = status)
-      case UpdateTaxLiability => tasks.copy(yearsOfTaxLiability = status)
+      case UpdateDeceased               => tasks.copy(deceased = status)
+      case UpdateTaxLiability           => tasks.copy(yearsOfTaxLiability = status)
     }
 
   "invoking .get" - {
@@ -90,8 +91,7 @@ class EstatesRegisterTasksServiceSpec extends SpecBase {
 
   }
 
-  "invoking .set for an update" - {
-
+  "invoking .set for an update" -
     taskTypes.foreach { taskType =>
       s"must set an updated Task of type=$taskType" in {
         val expected = buildExpectedUpdateTask(taskType, defaultTask, status = true)
@@ -104,10 +104,7 @@ class EstatesRegisterTasksServiceSpec extends SpecBase {
       }
     }
 
-  }
-
-  "invoking .reset for an update" - {
-
+  "invoking .reset for an update" -
     taskTypes.foreach { taskType =>
       s"must reset an updated Task of type=$taskType" in {
         val expected = buildExpectedUpdateTask(taskType, defaultTask, status = false)
@@ -120,5 +117,4 @@ class EstatesRegisterTasksServiceSpec extends SpecBase {
       }
     }
 
-  }
 }

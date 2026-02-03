@@ -30,7 +30,8 @@ class TaskCacheSpec extends AnyFreeSpec with Matchers {
   "task must" - {
 
     "serialise to model" in {
-      val cache = TaskCache("874872349",
+      val cache = TaskCache(
+        "874872349",
         Tasks(
           details = true,
           personalRepresentative = false,
@@ -40,8 +41,7 @@ class TaskCacheSpec extends AnyFreeSpec with Matchers {
         lastUpdated = dateTime
       )
 
-      val json = Json.parse(
-        """
+      val json = Json.parse("""
           |{
           | "internalId": "874872349",
           | "tasks": {
@@ -58,7 +58,8 @@ class TaskCacheSpec extends AnyFreeSpec with Matchers {
     }
 
     "deserialise to json" in {
-      val cache = TaskCache("874872349",
+      val cache = TaskCache(
+        "874872349",
         Tasks(
           details = true,
           personalRepresentative = false,
@@ -70,8 +71,7 @@ class TaskCacheSpec extends AnyFreeSpec with Matchers {
 
       val json = Json.toJson(cache)
 
-      json mustBe Json.parse(
-        """
+      json mustBe Json.parse("""
           |{
           | "internalId": "874872349",
           | "tasks": {
