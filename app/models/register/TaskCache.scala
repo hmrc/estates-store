@@ -16,14 +16,15 @@
 
 package models.register
 
-import java.time.LocalDateTime
-
+import models.MongoInstantReads
 import play.api.libs.json.{OWrites, Reads, __}
-import formats.MongoDateTimeFormats
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
-case class TaskCache(internalId: String, tasks: Tasks, lastUpdated: LocalDateTime = LocalDateTime.now)
+import java.time.Instant
 
-object TaskCache extends MongoDateTimeFormats {
+case class TaskCache(internalId: String, tasks: Tasks, lastUpdated: Instant = Instant.now)
+
+object TaskCache {
 
   import play.api.libs.functional.syntax._
 
@@ -31,14 +32,17 @@ object TaskCache extends MongoDateTimeFormats {
     (
       (__ \ "internalId").read[String] and
         (__ \ "tasks").read[Tasks] and
-        (__ \ "lastUpdated").read(localDateTimeRead)
+        // TODO this code should be only (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
+        // but due to invalid data inserted in mongo before it has to pass 1 hour to expire old mongo data in prod to be able to put this in place
+        // once that is done can delete test 'default lastUpdated to now when the stored value cannot be parsed' and remove MongoInstantReads
+        MongoInstantReads.withNowFallback("lastUpdated")
     )(TaskCache.apply _)
 
   implicit lazy val writes: OWrites[TaskCache] =
     (
       (__ \ "internalId").write[String] and
         (__ \ "tasks").write[Tasks] and
-        (__ \ "lastUpdated").write(localDateTimeWrite)
+        (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
     )(unlift(TaskCache.unapply))
 
 }

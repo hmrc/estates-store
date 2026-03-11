@@ -24,7 +24,7 @@ import play.api.libs.json.Format
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,7 +49,7 @@ class EstateRegisterTasksRepository @Inject() (mongo: MongoComponent, config: Ap
   private def byId(id: String) = Filters.eq("internalId", id)
 
   def get(internalId: String): Future[Option[TaskCache]] = {
-    val modifier = Updates.set("lastUpdated", LocalDateTime.now)
+    val modifier = Updates.set("lastUpdated", Instant.now)
 
     val options  = new FindOneAndUpdateOptions()
       .upsert(false)

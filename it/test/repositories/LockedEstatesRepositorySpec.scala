@@ -19,7 +19,7 @@ package repositories
 import models.claim_an_estate.EstateLock
 import uk.gov.hmrc.mongo.test.MongoSupport
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -37,7 +37,9 @@ class LockedEstatesRepositorySpec extends RepositoriesBase with MongoSupport {
     val internalId = "Int-328969d0-557e-4559-96ba-074d0597107e"
 
     "must be able to store, retrieve and remove estates claims" in {
-      val lastUpdated = LocalDateTime.parse("2000-01-01 12:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+      val lastUpdated = LocalDateTime
+        .parse("2000-01-01 12:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+        .toInstant(ZoneOffset.UTC)
 
       val estateLock = EstateLock(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
 
@@ -51,7 +53,9 @@ class LockedEstatesRepositorySpec extends RepositoriesBase with MongoSupport {
     }
 
     "must be able to update a estate claim with the same auth id" in {
-      val lastUpdated = LocalDateTime.parse("2000-01-01 12:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+      val lastUpdated = LocalDateTime
+        .parse("2000-01-01 12:30", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+        .toInstant(ZoneOffset.UTC)
 
       val estateLock        = EstateLock(internalId, "1234567890", managedByAgent = true, lastUpdated = lastUpdated)
       val updatedEstateLock = estateLock.copy(utr = "0987654321")

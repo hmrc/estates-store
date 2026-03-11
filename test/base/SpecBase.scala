@@ -60,6 +60,7 @@ class SpecBase
 
   protected def applicationBuilder(): GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
+      .configure(Map("metrics.enabled" -> false, "auditing.enabled" -> "false", "metrics.jvm" -> false))
       .overrides(
         bind[IdentifierAction].toInstance(new FakeIdentifierAction(stubControllerComponents().parsers.default))
       )

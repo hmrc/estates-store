@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-package connectors
+package controllers.actions
 
 import com.google.inject.Inject
-import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core._
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
-
-class FakeAuthConnector(stubbedRetrievalResult: Future[_]) extends AuthConnector {
-
-  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): Future[A] =
-    stubbedRetrievalResult.map(_.asInstanceOf[A])
-
-}
 
 class FakeFailingAuthConnector @Inject() (exceptionToReturn: Throwable) extends AuthConnector {
 
