@@ -16,18 +16,19 @@
 
 package models.claim_an_estate
 
-import java.time.LocalDateTime
-
+import models.MongoInstantReads
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import formats.MongoDateTimeFormats
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+
+import java.time.Instant
 
 case class EstateLock(
   internalId: String,
   utr: String,
   managedByAgent: Boolean,
   estateLocked: Boolean = false,
-  lastUpdated: LocalDateTime = LocalDateTime.now
+  lastUpdated: Instant = Instant.now
 ) {
 
   def toResponse: JsObject =
@@ -40,7 +41,7 @@ case class EstateLock(
 
 }
 
-object EstateLock extends MongoDateTimeFormats {
+object EstateLock {
 
   implicit lazy val reads: Reads[EstateLock] =
     (
@@ -48,7 +49,10 @@ object EstateLock extends MongoDateTimeFormats {
         (__ \ "utr").read[String] and
         (__ \ "managedByAgent").read[Boolean] and
         (__ \ "estateLocked").read[Boolean] and
-        (__ \ "lastUpdated").read(localDateTimeRead)
+        // TODO this code should be only (__ \ "lastUpdated").read(MongoJavatimeFormats.instantFormat)
+        // but due to invalid data inserted in mongo before it has to pass 1 hour to expire old mongo data in prod to be able to put this in place
+        // once that is done can delete test class EstateLockSpec and remove MongoInstantReads
+        MongoInstantReads.withNowFallback("lastUpdated")
     )(EstateLock.apply _)
 
   implicit lazy val writes: OWrites[EstateLock] =
@@ -57,7 +61,7 @@ object EstateLock extends MongoDateTimeFormats {
         (__ \ "utr").write[String] and
         (__ \ "managedByAgent").write[Boolean] and
         (__ \ "estateLocked").write[Boolean] and
-        (__ \ "lastUpdated").write(localDateTimeWrite)
+        (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
     )(unlift(EstateLock.unapply))
 
 }

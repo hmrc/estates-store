@@ -23,7 +23,7 @@ import org.mockito.ArgumentMatchers.{eq => mEq, _}
 import org.mockito.Mockito._
 import repositories.EstateRegisterTasksRepository
 
-import java.time.LocalDateTime
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -55,7 +55,7 @@ class EstatesRegisterTasksServiceSpec extends SpecBase {
       val taskCache = TaskCache(
         "internalId",
         task,
-        LocalDateTime.now
+        Instant.now
       )
 
       when(repository.get(mEq("internalId"))).thenReturn(Future.successful(Some(taskCache)))

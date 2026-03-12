@@ -22,6 +22,7 @@ import models.claim_an_estate.responses._
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito
 import org.mockito.Mockito._
+import org.mockito.ArgumentCaptor
 import repositories.LockedEstatesRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -85,6 +86,21 @@ class LockedEstatesServiceSpec extends SpecBase {
       val result = service.store(fakeInternalId, Some(fakeUtr), Some(true), Some(true)).futureValue
 
       result mustBe StoreSuccessResponse(estateLock)
+    }
+
+    "must return a StoreSuccessResponse when estateLocked is explicitly false" in {
+
+      val estateLock =
+        EstateLock(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true, estateLocked = false)
+      val captor     = ArgumentCaptor.forClass(classOf[EstateLock])
+
+      when(repository.store(any())).thenReturn(Future.successful(Some(estateLock)))
+
+      val result = service.store(fakeInternalId, Some(fakeUtr), Some(true), Some(false)).futureValue
+
+      result                                                     mustBe StoreSuccessResponse(estateLock)
+      verify(repository).store(captor.capture())
+      captor.getValue.copy(lastUpdated = estateLock.lastUpdated) mustBe estateLock
     }
 
     "must return a StoreParsingErrorResponse if the request body cannot be parsed into a EstateLock" in {

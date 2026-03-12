@@ -17,15 +17,12 @@
 package controllers.actions
 
 import base.SpecBase
-import com.google.inject.Inject
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, BodyParsers, PlayBodyParsers, Results}
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
 import uk.gov.hmrc.auth.core._
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.auth.core.retrieve.~
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,10 +31,8 @@ class IdentifierActionSpec extends SpecBase {
   implicit val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
 
   val playBodyParsers: PlayBodyParsers = injector.instanceOf[PlayBodyParsers]
-
-  class Harness(authAction: IdentifierAction) {
-    def onSubmit(): Action[JsValue] = authAction.apply(playBodyParsers.json)(_ => Results.Ok)
-  }
+  private val agentAffinityGroup       = AffinityGroup.Agent
+  private val orgAffinityGroup         = AffinityGroup.Organisation
 
   def bodyParsers: BodyParsers.Default = injector.instanceOf[BodyParsers.Default]
 
@@ -47,8 +42,9 @@ class IdentifierActionSpec extends SpecBase {
   private def insufficientAuthRetrievals =
     Future.successful(new ~(None, None))
 
-  private val agentAffinityGroup = AffinityGroup.Agent
-  private val orgAffinityGroup   = AffinityGroup.Organisation
+  class Harness(authAction: IdentifierAction) {
+    def onSubmit(): Action[JsValue] = authAction.apply(playBodyParsers.json)(_ => Results.Ok)
+  }
 
   "Auth Action must" - {
 
@@ -127,25 +123,5 @@ class IdentifierActionSpec extends SpecBase {
       }
     }
   }
-
-}
-
-class FakeFailingAuthConnector @Inject() (exceptionToReturn: Throwable) extends AuthConnector {
-
-  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): Future[A] =
-    Future.failed(exceptionToReturn)
-
-}
-
-class FakeAuthConnector(stubbedRetrievalResult: Future[_]) extends AuthConnector {
-
-  override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit
-    hc: HeaderCarrier,
-    ec: ExecutionContext
-  ): Future[A] =
-    stubbedRetrievalResult.map(_.asInstanceOf[A])
 
 }

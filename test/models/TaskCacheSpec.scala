@@ -16,16 +16,15 @@
 
 package models
 
+import base.SpecBase
 import models.register.{TaskCache, Tasks}
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
 import play.api.libs.json.Json
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
-class TaskCacheSpec extends AnyFreeSpec with Matchers {
+class TaskCacheSpec extends SpecBase {
 
-  val dateTime: LocalDateTime = LocalDateTime.of(2020, 10, 5, 12, 10)
+  val dateTime: Instant = LocalDateTime.of(2020, 10, 5, 12, 10).toInstant(java.time.ZoneOffset.UTC)
 
   "task must" - {
 
@@ -50,7 +49,7 @@ class TaskCacheSpec extends AnyFreeSpec with Matchers {
           |   "deceased": false,
           |   "yearsOfTaxLiability": false
           | },
-          | "lastUpdated": {"$date":1601899800000}
+          | "lastUpdated":{"$date":{"$numberLong":"1601899800000"}}
           |}
           |""".stripMargin)
 
@@ -80,9 +79,38 @@ class TaskCacheSpec extends AnyFreeSpec with Matchers {
           |   "deceased": false,
           |   "yearsOfTaxLiability": false
           | },
-          | "lastUpdated": {"$date":1601899800000}
+          | "lastUpdated":{"$date":{"$numberLong":"1601899800000"}}
           |}
           |""".stripMargin)
+    }
+
+    "default lastUpdated to now when the stored value cannot be parsed" in {
+      val before = Instant.now
+
+      val json = Json.parse("""
+          |{
+          | "internalId": "874872349",
+          | "tasks": {
+          |   "details": true,
+          |   "personalRepresentative": false,
+          |   "deceased": false,
+          |   "yearsOfTaxLiability": false
+          | },
+          | "lastUpdated":"not-an-instant"
+          |}
+          |""".stripMargin)
+
+      val cache = json.as[TaskCache]
+      val after = Instant.now
+
+      cache.internalId mustBe "874872349"
+      cache.tasks      mustBe Tasks(
+        details = true,
+        personalRepresentative = false,
+        deceased = false,
+        yearsOfTaxLiability = false
+      )
+      cache.lastUpdated  must (be >= before and be <= after)
     }
 
   }
