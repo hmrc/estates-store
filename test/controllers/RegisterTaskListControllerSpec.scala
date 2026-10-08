@@ -33,7 +33,7 @@ import scala.concurrent.Future
 
 class RegisterTaskListControllerSpec extends SpecBase {
 
-  lazy val application: Application         = applicationBuilder()
+  lazy val application: Application = applicationBuilder()
     .overrides(
       bind[RegisterTasksService].toInstance(service)
     )
