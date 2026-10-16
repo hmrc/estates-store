@@ -7,3 +7,4 @@ test-repositories:
   - estates-acceptance-tests
   - maintain-estate-performance-tests
   - register-estate-performance-tests
+serviceNowMapping: SNSVC0005913
