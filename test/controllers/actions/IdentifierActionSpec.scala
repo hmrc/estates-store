@@ -19,16 +19,16 @@ package controllers.actions
 import base.SpecBase
 import play.api.libs.json.JsValue
 import play.api.mvc.{Action, BodyParsers, PlayBodyParsers, Results}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.AffinityGroup.Individual
-import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.~
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class IdentifierActionSpec extends SpecBase {
 
-  implicit val ec: ExecutionContext = injector.instanceOf[ExecutionContext]
+  given ec: ExecutionContext = injector.instanceOf[ExecutionContext]
 
   val playBodyParsers: PlayBodyParsers = injector.instanceOf[PlayBodyParsers]
   private val agentAffinityGroup       = AffinityGroup.Agent

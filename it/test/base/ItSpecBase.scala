@@ -27,7 +27,7 @@ import play.api.Configuration
 
 class ItSpecBase extends AnyFreeSpec with Matchers with ScalaFutures with OptionValues with BeforeAndAfterEach {
 
-  implicit val defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(15, Millis))
+  given defaultPatience: PatienceConfig = PatienceConfig(timeout = Span(3, Seconds), interval = Span(15, Millis))
 
   val appConfig: AppConfig = new AppConfig(new Configuration(ConfigFactory.load()))
 }

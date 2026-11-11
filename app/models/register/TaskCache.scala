@@ -28,7 +28,7 @@ object TaskCache {
 
   import play.api.libs.functional.syntax._
 
-  implicit lazy val reads: Reads[TaskCache] =
+  given reads: Reads[TaskCache] =
     (
       (__ \ "internalId").read[String] and
         (__ \ "tasks").read[Tasks] and
@@ -36,13 +36,13 @@ object TaskCache {
         // but due to invalid data inserted in mongo before it has to pass 1 hour to expire old mongo data in prod to be able to put this in place
         // once that is done can delete test 'default lastUpdated to now when the stored value cannot be parsed' and remove MongoInstantReads
         MongoInstantReads.withNowFallback("lastUpdated")
-    )(TaskCache.apply _)
+    )(TaskCache.apply)
 
-  implicit lazy val writes: OWrites[TaskCache] =
+  given writes: OWrites[TaskCache] =
     (
       (__ \ "internalId").write[String] and
         (__ \ "tasks").write[Tasks] and
         (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
-    )(unlift(TaskCache.unapply))
+    )(taskCache => (taskCache.internalId, taskCache.tasks, taskCache.lastUpdated))
 
 }

@@ -19,7 +19,7 @@ package repositories
 import com.mongodb.client.model.ReturnDocument
 import config.AppConfig
 import models.register.TaskCache
-import org.mongodb.scala.model._
+import org.mongodb.scala.model.*
 import play.api.libs.json.Format
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -30,7 +30,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EstateRegisterTasksRepository @Inject() (mongo: MongoComponent, config: AppConfig)(implicit ec: ExecutionContext)
+class EstateRegisterTasksRepository @Inject() (mongo: MongoComponent, config: AppConfig)(using ec: ExecutionContext)
     extends PlayMongoRepository[TaskCache](
       mongoComponent = mongo,
       domainFormat = Format(TaskCache.reads, TaskCache.writes),
@@ -40,7 +40,7 @@ class EstateRegisterTasksRepository @Inject() (mongo: MongoComponent, config: Ap
           Indexes.ascending("lastUpdated"),
           IndexOptions()
             .name("tasks-last-updated-index")
-            .expireAfter(config.expireAfterSeconds, TimeUnit.SECONDS)
+            .expireAfter(config.expireAfterSeconds.toLong, TimeUnit.SECONDS)
             .unique(false)
         )
       )
