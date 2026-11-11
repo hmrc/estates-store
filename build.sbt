@@ -1,7 +1,9 @@
 import uk.gov.hmrc.DefaultBuildSettings.itSettings
+import uk.gov.hmrc.DefaultBuildSettings.targetJvm
 
-ThisBuild / scalaVersion := "2.13.18"
-ThisBuild / majorVersion := 0
+ThisBuild / scalaVersion := "3.6.4"
+ThisBuild / targetJvm := "jvm-21"
+ThisBuild / majorVersion := 1
 
 lazy val microservice = Project("estates-store", file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)

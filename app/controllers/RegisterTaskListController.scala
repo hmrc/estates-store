@@ -17,10 +17,10 @@
 package controllers
 
 import controllers.actions.IdentifierAction
-import models.register.Operations._
+import models.register.Operations.*
 import models.register.Tasks
-import play.api.libs.json._
-import play.api.mvc._
+import play.api.libs.json.*
+import play.api.mvc.*
 import services.RegisterTasksService
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
@@ -31,7 +31,7 @@ class RegisterTaskListController @Inject() (
   cc: ControllerComponents,
   service: RegisterTasksService,
   authAction: IdentifierAction
-)(implicit ec: ExecutionContext)
+)(using ec: ExecutionContext)
     extends BackendController(cc) {
 
   private def updateTask(internalId: String, operation: UpdateOperation) = for {
@@ -60,23 +60,23 @@ class RegisterTaskListController @Inject() (
     }
   }
 
-  def setDetailsComplete: Action[AnyContent] = authAction.async { implicit request =>
+  def setDetailsComplete: Action[AnyContent] = authAction.async { request =>
     updateTask(request.internalId, UpdateDetails)
   }
 
-  def setPersonalRepresentativeComplete: Action[AnyContent] = authAction.async { implicit request =>
+  def setPersonalRepresentativeComplete: Action[AnyContent] = authAction.async { request =>
     updateTask(request.internalId, UpdatePersonalRepresentative)
   }
 
-  def setDeceasedComplete: Action[AnyContent] = authAction.async { implicit request =>
+  def setDeceasedComplete: Action[AnyContent] = authAction.async { request =>
     updateTask(request.internalId, UpdateDeceased)
   }
 
-  def setTaxLiabilityComplete: Action[AnyContent] = authAction.async { implicit request =>
+  def setTaxLiabilityComplete: Action[AnyContent] = authAction.async { request =>
     updateTask(request.internalId, UpdateTaxLiability)
   }
 
-  def resetTaxLiability: Action[AnyContent] = authAction.async { implicit request =>
+  def resetTaxLiability: Action[AnyContent] = authAction.async { request =>
     resetTask(request.internalId, UpdateTaxLiability)
   }
 

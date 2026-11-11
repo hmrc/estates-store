@@ -17,8 +17,8 @@
 package models.claim_an_estate
 
 import models.MongoInstantReads
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.*
 import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
 
 import java.time.Instant
@@ -43,7 +43,7 @@ case class EstateLock(
 
 object EstateLock {
 
-  implicit lazy val reads: Reads[EstateLock] =
+  given reads: Reads[EstateLock] =
     (
       (__ \ "_id").read[String] and
         (__ \ "utr").read[String] and
@@ -53,15 +53,23 @@ object EstateLock {
         // but due to invalid data inserted in mongo before it has to pass 1 hour to expire old mongo data in prod to be able to put this in place
         // once that is done can delete test class EstateLockSpec and remove MongoInstantReads
         MongoInstantReads.withNowFallback("lastUpdated")
-    )(EstateLock.apply _)
+    )(EstateLock.apply)
 
-  implicit lazy val writes: OWrites[EstateLock] =
+  given writes: OWrites[EstateLock] =
     (
       (__ \ "_id").write[String] and
         (__ \ "utr").write[String] and
         (__ \ "managedByAgent").write[Boolean] and
         (__ \ "estateLocked").write[Boolean] and
         (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
-    )(unlift(EstateLock.unapply))
+    )(estateLock =>
+      (
+        estateLock.internalId,
+        estateLock.utr,
+        estateLock.managedByAgent,
+        estateLock.estateLocked,
+        estateLock.lastUpdated
+      )
+    )
 
 }

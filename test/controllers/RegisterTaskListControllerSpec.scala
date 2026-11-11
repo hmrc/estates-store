@@ -20,18 +20,24 @@ import base.SpecBase
 import models.register.Operations.UpdateTaxLiability
 import models.register.Tasks
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.RegisterTasksService
 
 import scala.concurrent.Future
 
 class RegisterTaskListControllerSpec extends SpecBase {
+  private val tasksEndpoint                  = "/estates-store/register/tasks"
+  private val estateDetailsEndpoint          = "/estates-store/register/tasks/estate-details"
+  private val personalRepresentativeEndpoint = "/estates-store/register/tasks/personal-representative"
+  private val deceasedEndpoint               = "/estates-store/register/tasks/deceased"
+  private val taxLiabilityEndpoint           = "/estates-store/register/tasks/tax-liability"
+  private val resetTaxLiabilityEndpoint      = "/estates-store/register/tasks/tax-liability/reset"
 
   lazy val application: Application = applicationBuilder()
     .overrides(
@@ -41,10 +47,13 @@ class RegisterTaskListControllerSpec extends SpecBase {
 
   private val service: RegisterTasksService = mock(classOf[RegisterTasksService])
 
+  override def beforeEach(): Unit =
+    reset(service)
+
   "invoking GET /register/tasks" - {
 
     "must return OK and the completed Tasks" in {
-      val request = FakeRequest(GET, routes.RegisterTaskListController.get().url)
+      val request = FakeRequest(GET, tasksEndpoint)
 
       val tasks = Tasks(
         details = true,
@@ -74,7 +83,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
       )
 
       val request =
-        FakeRequest(POST, routes.RegisterTaskListController.setDefaultState().url).withBody(Json.toJson(tasks))
+        FakeRequest(POST, tasksEndpoint).withBody(Json.toJson(tasks))
 
       when(service.set(any(), any())).thenReturn(Future.successful(tasks))
 
@@ -87,7 +96,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
     }
     "must return BAD_REQUEST for invalid JSON" in {
 
-      val request = FakeRequest(POST, routes.RegisterTaskListController.setDefaultState().url).withBody(Json.obj())
+      val request = FakeRequest(POST, tasksEndpoint).withBody(Json.obj())
 
       val result = route(application, request).value
 
@@ -109,7 +118,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
       val updatedTasks = tasks.copy(yearsOfTaxLiability = false)
 
       val request =
-        FakeRequest(POST, routes.RegisterTaskListController.resetTaxLiability().url).withBody(Json.toJson(tasks))
+        FakeRequest(POST, resetTaxLiabilityEndpoint).withBody(Json.toJson(tasks))
 
       when(service.get(any())).thenReturn(Future.successful(tasks))
       when(service.reset(any(), any(), any())).thenReturn(Future.successful(updatedTasks))
@@ -123,7 +132,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
     }
     "must return BAD_REQUEST for invalid JSON" in {
 
-      val request = FakeRequest(POST, routes.RegisterTaskListController.setDefaultState().url).withBody(Json.obj())
+      val request = FakeRequest(POST, tasksEndpoint).withBody(Json.obj())
 
       val result = route(application, request).value
 
@@ -135,7 +144,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
   "invoking POST /register/tasks/estate-details" - {
 
     "must return Ok and the completed tasks" in {
-      val request = FakeRequest(POST, routes.RegisterTaskListController.setDetailsComplete().url)
+      val request = FakeRequest(POST, estateDetailsEndpoint)
 
       val tasks = Tasks(
         details = false,
@@ -165,7 +174,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
   "invoking POST /register/tasks/personal-representative" - {
 
     "must return Ok and the completed tasks" in {
-      val request = FakeRequest(POST, routes.RegisterTaskListController.setPersonalRepresentativeComplete().url)
+      val request = FakeRequest(POST, personalRepresentativeEndpoint)
 
       val tasks = Tasks(
         details = false,
@@ -195,7 +204,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
   "invoking POST /register/tasks/deceased" - {
 
     "must return Ok and the completed tasks" in {
-      val request = FakeRequest(POST, routes.RegisterTaskListController.setDeceasedComplete().url)
+      val request = FakeRequest(POST, deceasedEndpoint)
 
       val tasks = Tasks(
         details = false,
@@ -225,7 +234,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
   "invoking POST /register/tasks/tax-liability" - {
 
     "must return Ok and the completed tasks" in {
-      val request = FakeRequest(POST, routes.RegisterTaskListController.setTaxLiabilityComplete().url)
+      val request = FakeRequest(POST, taxLiabilityEndpoint)
 
       val tasks = Tasks(
         details = false,
@@ -255,7 +264,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
   "invoking POST /register/tasks/tax-liability/reset" - {
 
     "must return Ok and the completed tasks" in {
-      val request = FakeRequest(POST, routes.RegisterTaskListController.setTaxLiabilityComplete().url)
+      val request = FakeRequest(POST, resetTaxLiabilityEndpoint)
 
       val tasks = Tasks(
         details = false,
@@ -272,7 +281,7 @@ class RegisterTaskListControllerSpec extends SpecBase {
       )
 
       when(service.get(any())).thenReturn(Future.successful(tasks))
-      when(service.set(any(), any(), any())).thenReturn(Future.successful(updatedTasks))
+      when(service.reset(any(), any(), any())).thenReturn(Future.successful(updatedTasks))
 
       val result = route(application, request).value
 

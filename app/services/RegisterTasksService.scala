@@ -16,14 +16,14 @@
 
 package services
 
-import models.register.Operations._
+import models.register.Operations.*
 import models.register.{TaskCache, Tasks}
 import repositories.EstateRegisterTasksRepository
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class RegisterTasksService @Inject() (tasksRepository: EstateRegisterTasksRepository)(implicit ec: ExecutionContext) {
+class RegisterTasksService @Inject() (tasksRepository: EstateRegisterTasksRepository)(using ec: ExecutionContext) {
 
   def get(internalId: String): Future[Tasks] =
     tasksRepository.get(internalId) map {
