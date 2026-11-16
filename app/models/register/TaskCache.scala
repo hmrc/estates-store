@@ -42,7 +42,7 @@ object TaskCache {
     (
       (__ \ "internalId").write[String] and
         (__ \ "tasks").write[Tasks] and
-        (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
+        (__ \ "lastUpdated").write(using MongoJavatimeFormats.instantFormat)
     )(taskCache => (taskCache.internalId, taskCache.tasks, taskCache.lastUpdated))
 
 }

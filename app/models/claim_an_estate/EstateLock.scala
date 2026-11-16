@@ -61,7 +61,7 @@ object EstateLock {
         (__ \ "utr").write[String] and
         (__ \ "managedByAgent").write[Boolean] and
         (__ \ "estateLocked").write[Boolean] and
-        (__ \ "lastUpdated").write(MongoJavatimeFormats.instantFormat)
+        (__ \ "lastUpdated").write(using MongoJavatimeFormats.instantFormat)
     )(estateLock =>
       (
         estateLock.internalId,
