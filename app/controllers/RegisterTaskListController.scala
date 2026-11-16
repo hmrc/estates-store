@@ -60,11 +60,11 @@ class RegisterTaskListController @Inject() (
     }
   }
 
-  def setDetailsComplete: Action[AnyContent] = authAction.async { request =>
+  def setDetailsComplete: Action[AnyContent] = authAction.async { implicit request =>
     updateTask(request.internalId, UpdateDetails)
   }
 
-  def setPersonalRepresentativeComplete: Action[AnyContent] = authAction.async { request =>
+  def setPersonalRepresentativeComplete: Action[AnyContent] = authAction.async { implicit request =>
     updateTask(request.internalId, UpdatePersonalRepresentative)
   }
 

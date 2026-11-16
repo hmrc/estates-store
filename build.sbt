@@ -1,7 +1,7 @@
 import uk.gov.hmrc.DefaultBuildSettings.itSettings
 import uk.gov.hmrc.DefaultBuildSettings.targetJvm
 
-ThisBuild / scalaVersion := "3.6.4"
+ThisBuild / scalaVersion := "3.9.0"
 ThisBuild / targetJvm := "jvm-21"
 ThisBuild / majorVersion := 1
 
