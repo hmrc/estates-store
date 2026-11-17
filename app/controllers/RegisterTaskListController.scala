@@ -68,15 +68,15 @@ class RegisterTaskListController @Inject() (
     updateTask(request.internalId, UpdatePersonalRepresentative)
   }
 
-  def setDeceasedComplete: Action[AnyContent] = authAction.async { request =>
+  def setDeceasedComplete: Action[AnyContent] = authAction.async { implicit request =>
     updateTask(request.internalId, UpdateDeceased)
   }
 
-  def setTaxLiabilityComplete: Action[AnyContent] = authAction.async { request =>
+  def setTaxLiabilityComplete: Action[AnyContent] = authAction.async { implicit request =>
     updateTask(request.internalId, UpdateTaxLiability)
   }
 
-  def resetTaxLiability: Action[AnyContent] = authAction.async { request =>
+  def resetTaxLiability: Action[AnyContent] = authAction.async { implicit request =>
     resetTask(request.internalId, UpdateTaxLiability)
   }
 
