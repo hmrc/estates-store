@@ -18,10 +18,10 @@ package services
 
 import base.SpecBase
 import models.claim_an_estate.EstateLock
-import models.claim_an_estate.responses._
-import org.mockito.ArgumentMatchers._
+import models.claim_an_estate.responses.*
+import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import org.mockito.ArgumentCaptor
 import repositories.LockedEstatesRepository
 

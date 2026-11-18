@@ -19,7 +19,7 @@ package repositories
 import com.mongodb.client.model.ReturnDocument
 import config.AppConfig
 import models.claim_an_estate.EstateLock
-import org.mongodb.scala.model._
+import org.mongodb.scala.model.*
 import play.api.libs.json.Format
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -29,7 +29,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
-class LockedEstatesRepository @Inject() (mongo: MongoComponent, config: AppConfig)(implicit ec: ExecutionContext)
+class LockedEstatesRepository @Inject() (mongo: MongoComponent, config: AppConfig)(using ec: ExecutionContext)
     extends PlayMongoRepository[EstateLock](
       mongoComponent = mongo,
       domainFormat = Format(EstateLock.reads, EstateLock.writes),
@@ -39,7 +39,7 @@ class LockedEstatesRepository @Inject() (mongo: MongoComponent, config: AppConfi
           Indexes.ascending("lastUpdated"),
           IndexOptions()
             .name("estate-claims-last-updated-index")
-            .expireAfter(config.expireAfterSeconds, TimeUnit.SECONDS)
+            .expireAfter(config.expireAfterSeconds.toLong, TimeUnit.SECONDS)
             .unique(false)
         )
       )

@@ -22,6 +22,6 @@ case class Tasks(details: Boolean, personalRepresentative: Boolean, deceased: Bo
 
 object Tasks {
 
-  implicit val formats: Format[Tasks] = Json.format[Tasks]
+  given formats: Format[Tasks] = Json.format[Tasks]
 
 }

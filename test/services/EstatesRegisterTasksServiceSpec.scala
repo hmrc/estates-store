@@ -17,10 +17,10 @@
 package services
 
 import base.SpecBase
-import models.register.Operations._
+import models.register.Operations.*
 import models.register.{TaskCache, Tasks}
 import org.mockito.ArgumentMatchers.{eq => mEq, _}
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import repositories.EstateRegisterTasksRepository
 
 import java.time.Instant

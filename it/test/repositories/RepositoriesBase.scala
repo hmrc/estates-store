@@ -17,7 +17,7 @@
 package repositories
 
 import base.ItSpecBase
-import org.mongodb.scala.MongoCollection
+import org.mongodb.scala.{MongoCollection, SingleObservableFuture}
 import org.mongodb.scala.bson.BsonDocument
 import org.mongodb.scala.model.Filters
 
@@ -25,10 +25,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class RepositoriesBase extends ItSpecBase {
 
-  def remove(collection: MongoCollection[_], internalId: String): Unit =
+  def remove(collection: MongoCollection[?], internalId: String): Unit =
     collection.deleteOne(Filters.eq("_id", internalId)).toFuture().map(_ => ()).futureValue
 
-  def cleanupDB(collection: MongoCollection[_]): Unit =
+  def cleanupDB(collection: MongoCollection[?]): Unit =
     collection.deleteMany(new BsonDocument()).toFuture().futureValue
 
 }

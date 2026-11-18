@@ -29,7 +29,7 @@ import utils.Session
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton()
-class LockedEstatesService @Inject() (private val lockedEstatesRepository: LockedEstatesRepository)(implicit
+class LockedEstatesService @Inject() (private val lockedEstatesRepository: LockedEstatesRepository)(using
   ec: ExecutionContext
 ) extends Logging {
 
@@ -44,7 +44,7 @@ class LockedEstatesService @Inject() (private val lockedEstatesRepository: Locke
     maybeUtr: Option[String],
     maybeManagedByAgent: Option[Boolean],
     maybeEstateLocked: Option[Boolean]
-  )(implicit hc: HeaderCarrier): Future[LockedEstateResponse] = {
+  )(using hc: HeaderCarrier): Future[LockedEstateResponse] = {
 
     val estateLock = (maybeUtr, maybeManagedByAgent, maybeEstateLocked) match {
       case (Some(utr), Some(managedByAgent), None)                    =>

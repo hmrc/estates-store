@@ -18,7 +18,7 @@ package base
 
 import config.AppConfig
 import controllers.actions.{FakeIdentifierAction, IdentifierAction}
-import org.scalatest._
+import org.scalatest.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -42,7 +42,7 @@ class SpecBase
     with Inside
     with BeforeAndAfterEach
     with BeforeAndAfter {
-  implicit lazy val hc: HeaderCarrier = HeaderCarrier()
+  given hc: HeaderCarrier = HeaderCarrier()
 
   def injector: Injector = app.injector
 

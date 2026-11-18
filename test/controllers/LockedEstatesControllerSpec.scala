@@ -18,21 +18,23 @@ package controllers
 
 import base.SpecBase
 import models.claim_an_estate.EstateLock
-import models.claim_an_estate.responses._
+import models.claim_an_estate.responses.*
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
-import org.mockito.Mockito._
+import org.mockito.Mockito.*
 import play.api.Application
 import play.api.http.Status
 import play.api.inject.bind
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import services.LockedEstatesService
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
 class LockedEstatesControllerSpec extends SpecBase {
+  private val lockEndpoint = "/estates-store/lock"
 
   lazy val application: Application = applicationBuilder()
     .overrides(
@@ -47,7 +49,7 @@ class LockedEstatesControllerSpec extends SpecBase {
 
   "invoking GET /claim" - {
     "must return OK and a EstateLock if there is one for the internal id" in {
-      val request = FakeRequest(GET, routes.LockedEstatesController.get().url)
+      val request = FakeRequest(GET, lockEndpoint)
 
       val estateLock = EstateLock(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
 
@@ -60,7 +62,7 @@ class LockedEstatesControllerSpec extends SpecBase {
     }
 
     "must return NOT_FOUND if there is no EstateLock for the internal id" in {
-      val request = FakeRequest(GET, routes.LockedEstatesController.get().url)
+      val request = FakeRequest(GET, lockEndpoint)
 
       val expectedJson = Json.parse(
         """
@@ -82,7 +84,7 @@ class LockedEstatesControllerSpec extends SpecBase {
 
   "invoking POST /claim" - {
     "must return CREATED and the stored EstateLock if the service returns a StoreSuccessResponse" in {
-      val request = FakeRequest(POST, routes.LockedEstatesController.store().url)
+      val request = FakeRequest(POST, lockEndpoint)
         .withJsonBody(
           Json.obj(
             "utr"            -> "0123456789",
@@ -92,7 +94,7 @@ class LockedEstatesControllerSpec extends SpecBase {
 
       val estateLock = EstateLock(internalId = fakeInternalId, utr = fakeUtr, managedByAgent = true)
 
-      when(service.store(any(), any(), any(), any())(any()))
+      when(service.store(any(), any(), any(), any())(using any[HeaderCarrier]))
         .thenReturn(Future.successful(StoreSuccessResponse(estateLock)))
 
       val result = route(application, request).value
@@ -102,7 +104,7 @@ class LockedEstatesControllerSpec extends SpecBase {
     }
 
     "must return BAD_REQUEST and an error response if the service returns a StoreParsingErrorResponse" in {
-      val request = FakeRequest(POST, routes.LockedEstatesController.store().url)
+      val request = FakeRequest(POST, lockEndpoint)
         .withJsonBody(
           Json.obj(
             "some-incorrect-key" -> "some-incorrect-value"
@@ -118,7 +120,8 @@ class LockedEstatesControllerSpec extends SpecBase {
         """.stripMargin
       )
 
-      when(service.store(any(), any(), any(), any())(any())).thenReturn(Future.successful(StoreParsingError))
+      when(service.store(any(), any(), any(), any())(using any[HeaderCarrier]))
+        .thenReturn(Future.successful(StoreParsingError))
 
       val result = route(application, request).value
 

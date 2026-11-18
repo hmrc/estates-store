@@ -17,14 +17,15 @@
 package controllers
 
 import controllers.actions.IdentifierAction
-import models.claim_an_estate.responses.LockedEstateResponse._
-import models.claim_an_estate.responses._
+import models.claim_an_estate.responses.LockedEstateResponse.*
+import models.claim_an_estate.responses.*
 import models.responses.ErrorResponse
-import models.responses.ErrorResponse._
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc._
+import play.api.mvc.*
 import services.LockedEstatesService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
@@ -34,10 +35,10 @@ class LockedEstatesController @Inject() (
   cc: ControllerComponents,
   service: LockedEstatesService,
   authAction: IdentifierAction
-)(implicit ec: ExecutionContext)
+)(using ec: ExecutionContext)
     extends BackendController(cc) {
 
-  def get(): Action[AnyContent] = authAction.async { implicit request =>
+  def get(): Action[AnyContent] = authAction.async { request =>
     service.get(request.internalId) map {
       case GetLockFound(estateLock) =>
         Ok(estateLock.toResponse)
@@ -46,7 +47,8 @@ class LockedEstatesController @Inject() (
     }
   }
 
-  def store(): Action[JsValue] = authAction.async(parse.tolerantJson) { implicit request =>
+  def store(): Action[JsValue] = authAction.async(parse.tolerantJson) { request =>
+    given HeaderCarrier     = HeaderCarrierConverter.fromRequest(request)
     val maybeUtr            = (request.body \ "utr").asOpt[String]
     val maybeManagedByAgent = (request.body \ "managedByAgent").asOpt[Boolean]
     val maybeEstateLocked   = (request.body \ "estateLocked").asOpt[Boolean]

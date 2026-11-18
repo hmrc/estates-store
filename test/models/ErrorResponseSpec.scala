@@ -17,10 +17,9 @@
 package models
 
 import base.SpecBase
-import models.claim_an_estate.responses.LockedEstateResponse._
+import models.claim_an_estate.responses.LockedEstateResponse.*
 import models.responses.ErrorResponse
-import models.responses.ErrorResponse._
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 
 class ErrorResponseSpec extends SpecBase {

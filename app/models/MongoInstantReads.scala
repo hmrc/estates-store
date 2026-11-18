@@ -25,7 +25,7 @@ object MongoInstantReads {
 
   def withNowFallback(path: String): Reads[Instant] =
     (__ \ path).readNullable[JsValue].map {
-      _.flatMap(_.validate(MongoJavatimeFormats.instantFormat).asOpt).getOrElse(Instant.now)
+      _.flatMap(_.validate(using MongoJavatimeFormats.instantFormat).asOpt).getOrElse(Instant.now)
     }
 
 }
